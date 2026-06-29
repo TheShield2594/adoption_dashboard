@@ -414,7 +414,7 @@
       </div>
     </header>
 
-    <div class="error-banner" id="error-banner" style="display:none">
+    <div class="error-banner" id="error-banner" role="alert" aria-live="assertive" style="display:none">
       <strong>⚠️ Could not load grant data.</strong> Make sure <code>adoption-grants-dashboard.json</code> is in the same folder and the page is served over a web server, not opened directly as a file.
     </div>
 
@@ -790,7 +790,7 @@
           PRESET_REASONS = data.presetReasons;
         }
 
-        grants = data.grants.filter(g => g && g.name && g.type);
+        grants = data.grants.filter(g => g && g.name && g.type && g.website && g.deadline);
 
         if (data.lastUpdated) {
           document.getElementById('last-updated').textContent = 'Updated ' + data.lastUpdated;
