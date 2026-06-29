@@ -1,0 +1,345 @@
+{
+  "lastUpdated": "2026-06-15",
+  "version": 2,
+  "adoptionType": "Domestic",
+  "consultant": "Christian Adoption Consultants",
+  "grants": [
+    {
+      "name": "Gift of Adoption Fund",
+      "amount": "Up to $15,000",
+      "amountRaw": 15000,
+      "type": "grant",
+      "focus": "Domestic / International / Relative",
+      "deadline": "Rolling \u2014 no deadline",
+      "website": "https://giftofadoption.org/apply-for-a-grant/",
+      "details": "Grants awarded to qualified applicants for domestic, international, and relative adoptions. One of the largest adoption grant programs available. Requires completed home study.",
+      "sentWeeks": [
+        "June 1",
+        "June 8"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Helpusadopt.org",
+      "amount": "$1,000 \u2013 $30,000",
+      "amountRaw": 30000,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Quarterly cycles (Jan/Apr/Jul/Oct)",
+      "website": "https://www.helpusadopt.org/apply/",
+      "details": "Need-based grants paid directly to licensed adoption agencies or lawyers. Open to individuals/couples regardless of race, religion, gender, ethnicity, marital status, or sexual orientation. Avg grant ~$6,409.",
+      "sentWeeks": [
+        "June 1"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "A Child Waits Foundation",
+      "amount": "Up to $7,000",
+      "amountRaw": 7000,
+      "type": "grant",
+      "focus": "Domestic infant/child only",
+      "deadline": "Year-round \u2014 awarded weekly",
+      "website": "https://www.achildwaits.org/domestic-grant-program",
+      "details": "Specifically for domestic infant/child adoption. Grants awarded weekly; can apply after completing homestudy. Committed to reducing financial barriers to adoption.",
+      "sentWeeks": [
+        "June 1",
+        "June 8"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Lifesong for Orphans",
+      "amount": "$6,000 \u2013 $10,000 (based on need)",
+      "amountRaw": 10000,
+      "type": "grant",
+      "focus": "Domestic / International",
+      "deadline": "Quarterly reviews (Mar, Jun, Sep)",
+      "website": "https://lifesong.org/adoption/",
+      "details": "Offers direct grants, matching grants, interest-free loans, and mySTORY fundraising. Applications reviewed quarterly. Crowdfunding pages tied directly into adoption accounts for approved families.",
+      "sentWeeks": [
+        "June 1",
+        "June 8"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Adoption Hope Foundation",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "Domestic",
+      "deadline": "Check website",
+      "website": "https://www.adoptionhopefoundation.org/how-to-apply",
+      "details": "Breaking the financial barrier of adoption by providing grants for those building families through adoption. Requires valid home study from licensed agency.",
+      "sentWeeks": [
+        "June 8"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Both Hands C.A.R.E.",
+      "amount": "$3,000 matching grants",
+      "amountRaw": 3000,
+      "type": "matching_grant",
+      "focus": "Adoption costs / post-adoption / orphan care ministries",
+      "deadline": "Check website for 2026 cycle",
+      "website": "https://bothhands.org/2026-matching-grants/",
+      "details": "In 2025, C.A.R.E. gave two families $3,000 adoption grants. Funds can be raised for adoption costs, post-adoption needs, or orphan care ministries.",
+      "sentWeeks": [
+        "June 8"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "ABBA Fund",
+      "amount": "Interest-free loans and grants",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "Christian families",
+      "deadline": "Check website",
+      "website": "https://abbafund.org/",
+      "details": "Adoption assistance for Christian families. Provides grants to help reduce the financial burden of adoption.",
+      "sentWeeks": [
+        "June 8"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Buescher Foundation",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "Domestic",
+      "deadline": "Check website",
+      "website": "https://www.thebuescherfoundation.org/",
+      "details": "Has helped over 90 families adopt a child domestically. Provides adoption grants to families.",
+      "sentWeeks": [
+        "June 8"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "AdoptTogether",
+      "amount": "Crowdfunding platform",
+      "amountRaw": null,
+      "type": "crowdfunding",
+      "focus": "All adoptions",
+      "deadline": "Ongoing",
+      "website": "https://adopttogether.org/",
+      "details": "Non-profit crowdfunding platform bridging the gap between families who want to adopt and children who need loving homes.",
+      "sentWeeks": [
+        "June 8"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Adoption Is Love Fund",
+      "amount": "$1,000",
+      "amountRaw": 1000,
+      "type": "grant",
+      "focus": "Domestic",
+      "deadline": "Check website",
+      "website": "https://www.adoptionislovefund.org/",
+      "details": "Provides grants to help cover adoption expenses. Requires completed home study.",
+      "sentWeeks": [
+        "June 8"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Dave Thomas Foundation for Adoption",
+      "amount": "Resources (various)",
+      "amountRaw": null,
+      "type": "resource",
+      "focus": "All adoptions, esp. special needs",
+      "deadline": "Ongoing",
+      "website": "https://www.davethomasfoundation.org/",
+      "details": "Various resources including the annual Frosty 5K Run for Adoption. Maintains a comprehensive financial resources page listing 10+ programs including Help Us Adopt and state-specific programs.",
+      "sentWeeks": [
+        "June 1",
+        "June 8"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "National Adoption Foundation",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Check website",
+      "website": "https://fundyouradoption.org/adoption-grants/",
+      "details": "Helps offset expenses directly associated with the adoption process. Outright grants to offset adoption expenses.",
+      "sentWeeks": [
+        "June 1"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Adopt America Network \u2014 Military Grant",
+      "amount": "$1,000 \u2013 $2,500",
+      "amountRaw": 2500,
+      "type": "grant",
+      "focus": "Active-duty military",
+      "deadline": "Check website",
+      "website": "https://www.adoptamerica.net/",
+      "details": "For active-duty service members. Reimbursements up to $2,000 per child also available through other programs.",
+      "sentWeeks": [
+        "June 1"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Associates Home Loan Adoption Grant",
+      "amount": "$1,000 (twice yearly)",
+      "amountRaw": 1000,
+      "type": "grant",
+      "focus": "Families with adoption cost burden",
+      "deadline": "Twice per year",
+      "website": "https://www.davethomasfoundation.org/resource/financial-resources-for-adoptive-families/",
+      "details": "$1,000 grant awarded twice per year to families with adoption cost burdens.",
+      "sentWeeks": [
+        "June 1"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "IRS Adoption Credit (2026)",
+      "amount": "Up to $17,670 per child",
+      "amountRaw": 17670,
+      "type": "tax_credit",
+      "focus": "All adoptive families",
+      "deadline": "Claim on 2026 tax return",
+      "website": "https://www.irs.gov/credits-deductions/individuals/adoption-credit",
+      "details": "Federal tax credit up to $17,670 per child for qualified adoption expenses; portion is refundable. Available for domestic, international, and foster care adoptions.",
+      "sentWeeks": [
+        "June 1"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Employer Adoption Assistance (2026)",
+      "amount": "Up to $17,670 tax-free",
+      "amountRaw": 17670,
+      "type": "employer_benefit",
+      "focus": "Employees with employer programs",
+      "deadline": "Ongoing \u2014 check with HR",
+      "website": "https://www.irs.gov/newsroom/employer-adoption-benefit-programs",
+      "details": "Up to $17,670 can be excluded from income as tax-free employer reimbursement. Many major employers cover it. Some employers (e.g., US Military) provide additional financial assistance and leave. Check with HR about FSA-eligible adoption expenses.",
+      "sentWeeks": [
+        "June 1"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Title IV-E Adoption Assistance",
+      "amount": "Federal matching funds (50\u201383%)",
+      "amountRaw": null,
+      "type": "federal_assistance",
+      "focus": "Special needs from foster care",
+      "deadline": "Ongoing \u2014 negotiated through agency",
+      "website": "https://www.acf.gov/cb/grant-funding/title-iv-e-adoption-assistance",
+      "details": "Federal matching funds (50\u201383% depending on state) for adoption assistance payments. For families adopting children with special needs from foster care. Negotiated with your agency/state.",
+      "sentWeeks": [
+        "June 1"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Show Hope Adoption Aid Grant",
+      "amount": "$8,000 \u2013 $12,000",
+      "amountRaw": 12000,
+      "type": "grant",
+      "focus": "Domestic / International",
+      "deadline": "June 30, 2026",
+      "website": "https://showhope.org/",
+      "details": "Show Hope is currently accepting applications for their Adoption Aid grant. These grants help families pursuing domestic or international adoption. Their current application window is open through June 30th \u2014 don't miss this one!",
+      "sentWeeks": [
+        "June 15"
+      ]
+    },
+    {
+      "name": "Here I Am Orphan Ministries \u2014 Adoption Grant & Loan Program",
+      "amount": "Varies (Grant + Loan program for Christian families)",
+      "amountRaw": null,
+      "type": "matching_grant",
+      "focus": "Christian families adopting waiting children",
+      "deadline": "June 23, 2026",
+      "website": "https://orphanministries.com/adoption-grant-and-loan-program/",
+      "details": "Specifically for Christian families adopting waiting children \u2014 older kids, special needs, or sibling groups. Out-of-state families welcome. Applications due soon!",
+      "sentWeeks": [
+        "June 15"
+      ]
+    },
+    {
+      "name": "Help Us Adopt",
+      "amount": "Up to $30,000",
+      "amountRaw": 30000,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Rolling \u2014 no deadline (six award cycles per year)",
+      "website": "https://www.helpusadopt.org/",
+      "details": "One of the most generous adoption grants available. Six award cycles per year. Open to all regardless of ethnicity, gender, marital status, religion, or sexual orientation. They're awarding $2.7 million in grants in 2025 alone!",
+      "sentWeeks": [
+        "June 15"
+      ]
+    },
+    {
+      "name": "A Child Waits Foundation \u2014 Domestic Adoption Grant",
+      "amount": "Up to $7,000",
+      "amountRaw": 7000,
+      "type": "grant",
+      "focus": "Domestic infant/child only",
+      "deadline": "Rolling \u2014 applications accepted year-round",
+      "website": "https://www.achildwaits.org/domestic-grant-program",
+      "details": "Specifically for domestic adoption! Grants are awarded weekly. Apply any time after you have a completed homestudy.",
+      "sentWeeks": [
+        "June 15"
+      ]
+    },
+    {
+      "name": "ABBA Fund \u2014 Christian Family Adoption Grant",
+      "amount": "Varies (matching grant program)",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "Christian families",
+      "deadline": "No deadline \u2014 apply anytime after home study",
+      "website": "https://abbafund.org/application/",
+      "details": "Christian-focused grant program. Has provided over $9 million in adoption assistance. No application deadline \u2014 apply anytime after completing your home study and accepting a match.",
+      "sentWeeks": [
+        "June 15"
+      ]
+    },
+    {
+      "name": "Lifesong for Orphans \u2014 Matching Grants",
+      "amount": "$1,000 \u2013 $4,000 (dollar-for-dollar matching)",
+      "amountRaw": 4000,
+      "type": "matching_grant",
+      "focus": "Domestic / International",
+      "deadline": "Rolling \u2014 as donations come in for your family",
+      "website": "https://lifesong.org/adoption/",
+      "details": "Matching grant program that mobilizes the Body of Christ to support your adoption journey. Raises funds through their network of supporters.",
+      "sentWeeks": [
+        "June 15"
+      ]
+    }
+  ]
+}

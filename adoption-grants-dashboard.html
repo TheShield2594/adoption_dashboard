@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adoption Grants Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --card-hover: #21253a;
+      --border: #2a2f3e;
+      --text: #e8e9ed;
+      --text-muted: #8b8fa3;
+      --accent: #7c6aef;
+      --accent-dim: #7c6aef22;
+      --green: #34d399;
+      --green-dim: #34d39922;
+      --yellow: #fbbf24;
+      --yellow-dim: #fbbf2422;
+      --blue: #60a5fa;
+      --red: #f87171;
+      --red-dim: #f8717122;
+      --pink: #f472b6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    header h1 { font-size: 1.5rem; font-weight: 700; }
+    header h1 span { color: var(--accent); }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .save-indicator {
+      font-size: 0.75rem;
+      color: var(--green);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .save-indicator.show { opacity: 1; }
+
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .stat-card .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-card .value { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+    .stat-card .value.green { color: var(--green); }
+    .stat-card .value.yellow { color: var(--yellow); }
+    .stat-card .value.blue { color: var(--blue); }
+    .stat-card .value.pink { color: var(--pink); }
+    .stat-card .value.red { color: var(--red); }
+
+    .info-banner {
+      background: var(--yellow-dim);
+      border: 1px solid #fbbf2444;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .info-banner strong { color: var(--yellow); }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .filter-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .filter-btn .count {
+      background: var(--border);
+      border-radius: 10px;
+      padding: 1px 6px;
+      font-size: 0.7rem;
+      margin-left: 4px;
+    }
+
+    .filter-btn.active .count { background: var(--accent); color: #fff; }
+
+    .type-legend {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      padding: 14px 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .type-legend span { font-size: 0.75rem; color: var(--text-muted); }
+    .type-legend strong { color: var(--text); margin-right: 6px; }
+
+    .grants-grid { display: grid; gap: 14px; }
+
+    .grant-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 24px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .grant-card:hover { border-color: var(--accent); background: var(--card-hover); }
+
+    .grant-card.applied { border-color: #34d39955; }
+    .grant-card.ignored { border-color: #fbbf2433; }
+
+    .grant-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .grant-name { font-size: 1rem; font-weight: 600; flex: 1; }
+
+    .grant-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .grant-amount { font-size: 1rem; font-weight: 700; white-space: nowrap; }
+    .grant-amount.high { color: var(--green); }
+    .grant-amount.mid { color: var(--yellow); }
+    .grant-amount.low { color: var(--text-muted); }
+    .grant-amount.info { color: var(--blue); }
+
+    .applied-badge {
+      background: var(--green-dim);
+      color: var(--green);
+      border: 1px solid #34d39955;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: none;
+    }
+
+    .grant-card.applied .applied-badge { display: inline-block; }
+
+    .grant-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .meta-tag {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .meta-tag.focus { background: #f472b622; color: var(--pink); border: 1px solid #f472b644; }
+    .meta-tag.type { background: #60a5fa22; color: var(--blue); border: 1px solid #60a5fa44; }
+    .meta-tag.deadline { background: var(--yellow-dim); color: var(--yellow); border: 1px solid #fbbf2444; }
+    .meta-tag.rolling { background: var(--green-dim); color: var(--green); border: 1px solid #34d39944; }
+
+    .grant-details {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    .grant-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .grant-footer-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .sent-weeks {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* STATUS CONTROLS */
+    .status-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .status-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .status-btn:hover { border-color: var(--green); color: var(--green); }
+    .status-btn.applied-btn:hover { border-color: var(--green); color: var(--green); }
+    .status-btn.applied-btn.active {
+      background: var(--green-dim);
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .status-btn.ignore-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+    .status-btn.ignore-btn.active {
+      background: var(--yellow-dim);
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+
+    .status-btn.clear-btn:hover { border-color: var(--red); color: var(--red); }
+
+    .ignore-reason-wrap {
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ignore-reason-wrap.visible { display: flex; }
+
+    .ignore-reason-wrap select {
+      background: var(--card);
+      border: 1px solid var(--yellow);
+      color: var(--yellow);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      max-width: 240px;
+    }
+
+    .ignore-reason-wrap select option { background: var(--card); color: var(--text); }
+
+    .ignore-reason-wrap .reason-custom {
+      background: var(--card);
+      border: 1px solid var(--yellow);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      width: 180px;
+    }
+
+    .ignore-reason-wrap .reason-custom::placeholder { color: var(--text-muted); }
+
+    .ignored-badge {
+      background: var(--yellow-dim);
+      color: var(--yellow);
+      border: 1px solid #fbbf2444;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: none;
+    }
+
+    .grant-card.ignored .ignored-badge { display: inline-block; }
+    .grant-card.ignored .status-btn.ignore-btn { display: none; }
+    .grant-card.ignored .applied-btn { display: none; }
+    .grant-card.applied .status-btn { display: none; }
+    .grant-card.applied .ignore-reason-wrap { display: none !important; }
+
+    .apply-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+
+    .apply-btn:hover { opacity: 0.85; }
+
+    .section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      margin-top: 32px;
+    }
+
+    .section-title.first { margin-top: 0; }
+
+    @media (max-width: 600px) {
+      body { padding: 16px; }
+      .grant-footer { flex-direction: column; align-items: flex-start; }
+      .grant-meta { gap: 8px; }
+      .grant-right { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1>🎁 <span>Adoption</span> Grants Dashboard</h1>
+      <div class="header-right">
+        <span class="badge">Domestic Adoption</span>
+        <span class="save-indicator" id="save-indicator">✓ Saved</span>
+      </div>
+    </header>
+
+    <div class="summary-row">
+      <div class="stat-card">
+        <div class="label">Total Programs</div>
+        <div class="value blue" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Max Grant Potential</div>
+        <div class="value green" id="stat-max">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">No-Deadline Programs</div>
+        <div class="value yellow" id="stat-rolling">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Applied</div>
+        <div class="value green" id="stat-applied">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Ignored</div>
+        <div class="value yellow" id="stat-ignored">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tax + Employer</div>
+        <div class="value" style="color:var(--pink)" id="stat-benefit">$35,340</div>
+      </div>
+    </div>
+
+    <div class="info-banner">
+      <strong>💡 Quick tip:</strong> The IRS Adoption Credit and Employer Adoption Assistance <strong>stack together</strong> — that's up to <strong>$35,340</strong> in tax-free/creditable benefits. Gift of Adoption and A Child Waits have <strong>no deadlines</strong> — apply anytime after home study.
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-filter="all">All<span class="count" id="count-all">—</span></button>
+      <button class="filter-btn" data-filter="grant">Grants<span class="count" id="count-grant">—</span></button>
+      <button class="filter-btn" data-filter="matching_grant">Matching<span class="count" id="count-matching_grant">—</span></button>
+      <button class="filter-btn" data-filter="tax_credit">Tax Credits<span class="count" id="count-tax_credit">—</span></button>
+      <button class="filter-btn" data-filter="employer_benefit">Employer<span class="count" id="count-employer_benefit">—</span></button>
+      <button class="filter-btn" data-filter="federal_assistance">Federal<span class="count" id="count-federal_assistance">—</span></button>
+      <button class="filter-btn" data-filter="resource">Resources<span class="count" id="count-resource">—</span></button>
+      <button class="filter-btn" data-filter="rolling">No Deadline ✓<span class="count" id="count-rolling">—</span></button>
+      <button class="filter-btn" data-filter="applied">Applied ✓<span class="count" id="count-applied">—</span></button>
+      <button class="filter-btn" data-filter="ignored">Ignored<span class="count" id="count-ignored">—</span></button>
+    </div>
+
+    <div class="type-legend">
+      <span><strong>grant</strong> — outright grant</span>
+      <span><strong>matching_grant</strong> — you raise funds, they match</span>
+      <span><strong>tax_credit</strong> — IRS federal credit</span>
+      <span><strong>employer_benefit</strong> — employer reimbursement</span>
+      <span><strong>federal_assistance</strong> — state/federal program</span>
+      <span><strong>resource</strong> — hub/info, not a direct grant</span>
+    </div>
+
+    <div class="grants-grid" id="grants-grid"></div>
+
+  </div>
+
+  <script>
+    const GRANT_DATA_URL = 'adoption-grants-dashboard.json';
+    const PRESET_REASONS = [
+      "Don't qualify — income too high",
+      "Don't qualify — not in service area",
+      "Don't qualify — already adopted / closed",
+      "Didn't have homestudy ready in time",
+      "Application fee too high",
+      "Not relevant to our situation",
+      "Waiting on home study to complete",
+      "Decided not to pursue"
+    ];
+
+    let grants = [];
+    let currentFilter = 'all';
+    let saveTimer = null;
+
+    async function loadData() {
+      const res = await fetch(GRANT_DATA_URL);
+      return res.json();
+    }
+
+    function loadStatuses() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('adoption-grants-status') || '{}');
+        return saved;
+      } catch { return {}; }
+    }
+
+    function saveStatuses(statuses) {
+      localStorage.setItem('adoption-grants-status', JSON.stringify(statuses));
+    }
+
+    function showSaveIndicator() {
+      const el = document.getElementById('save-indicator');
+      el.classList.add('show');
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => el.classList.remove('show'), 2000);
+    }
+
+    function getStatuses() { return loadStatuses(); }
+
+    function amountClass(amount, type) {
+      if (type === 'tax_credit' || type === 'employer_benefit') return 'info';
+      if (!amount) return 'low';
+      if (amount >= 10000) return 'high';
+      if (amount >= 1000) return 'mid';
+      return 'low';
+    }
+
+    function deadlineClass(deadline) {
+      if (deadline.toLowerCase().includes('rolling') || deadline.toLowerCase().includes('year-round')) return 'rolling';
+      return 'deadline';
+    }
+
+    function isRolling(deadline) {
+      return deadline.toLowerCase().includes('rolling') || deadline.toLowerCase().includes('year-round');
+    }
+
+    function buildCard(grant, index) {
+      const ac = amountClass(grant.amountRaw, grant.type);
+      const dc = deadlineClass(grant.deadline);
+      const rolling = isRolling(grant.deadline);
+      const statuses = getStatuses();
+      const status = statuses[grant.name] || {};
+      const applied = status.applied === true;
+      const ignored = !!status.ignoredReason;
+      const ignoredReason = status.ignoredReason || '';
+
+      let cardClass = 'grant-card';
+      if (applied) cardClass += ' applied';
+      else if (ignored) cardClass += ' ignored';
+
+      let filterAttr = rolling ? `data-filter="rolling ${grant.type}` : `data-filter="${grant.type}`;
+      if (applied) filterAttr += ' applied';
+      if (ignored) filterAttr += ' ignored';
+      filterAttr += '"';
+
+      const ignoredBadgeHtml = ignored
+        ? `<span class="ignored-badge">✗ Ignored${ignoredReason && ignoredReason !== 'custom' ? ': ' + ignoredReason : ''}</span>`
+        : '';
+
+      const ignoreReasonOptions = PRESET_REASONS.map(r => `<option value="${r}">${r}</option>`).join('') +
+        `<option value="custom">Other (type reason)…</option>`;
+
+      return `
+        <div class="${cardClass}" ${filterAttr} data-index="${index}">
+          <div class="grant-header">
+            <div class="grant-name">${grant.name}</div>
+            <div class="grant-right">
+              <div class="grant-amount ${ac}">${grant.amount}</div>
+              ${applied ? `<span class="applied-badge">✓ Applied</span>` : ''}
+              ${ignoredBadgeHtml}
+            </div>
+          </div>
+          <div class="grant-meta">
+            <span class="meta-tag focus">${grant.focus}</span>
+            <span class="meta-tag type">${grant.type.replace('_', ' ')}</span>
+            <span class="meta-tag ${dc}">${rolling ? '✓ ' : ''}${grant.deadline}</span>
+          </div>
+          <div class="grant-details">${grant.details}</div>
+          <div class="grant-footer">
+            <div class="grant-footer-left">
+              <span class="sent-weeks">Sent: ${grant.sentWeeks.join(', ')}</span>
+              <div class="status-controls">
+                <button class="status-btn applied-btn" data-action="applied" data-grant="${grant.name}">✓ Applied</button>
+                <button class="status-btn ignore-btn" data-action="ignore" data-grant="${grant.name}">✗ Ignore</button>
+                <button class="status-btn clear-btn" data-action="clear" data-grant="${grant.name}" title="Clear status">✕ Clear</button>
+                <div class="ignore-reason-wrap">
+                  <select data-grant="${grant.name}" class="reason-preset">
+                    <option value="">Select reason…</option>
+                    ${ignoreReasonOptions}
+                  </select>
+                  <input type="text" class="reason-custom" data-grant="${grant.name}" placeholder="Other reason…" style="display:none">
+                </div>
+              </div>
+            </div>
+            <a href="${grant.website}" target="_blank" class="apply-btn">Apply →</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateStats() {
+      const statuses = getStatuses();
+      let applied = 0, ignored = 0;
+      grants.forEach(g => {
+        const s = statuses[g.name] || {};
+        if (s.applied) applied++;
+        else if (s.ignoredReason) ignored++;
+      });
+
+      document.getElementById('stat-applied').textContent = applied;
+      document.getElementById('stat-ignored').textContent = ignored;
+
+      // Update filter counts
+      const counts = { all: grants.length, applied, ignored };
+      ['grant', 'matching_grant', 'tax_credit', 'employer_benefit', 'federal_assistance', 'resource'].forEach(t => {
+        counts[t] = grants.filter(g => g.type === t).length;
+      });
+      counts.rolling = grants.filter(g => isRolling(g.deadline)).length;
+
+      Object.entries(counts).forEach(([key, val]) => {
+        const el = document.getElementById('count-' + key);
+        if (el) el.textContent = val;
+      });
+    }
+
+    function renderAll() {
+      const grid = document.getElementById('grants-grid');
+      grid.innerHTML = grants.map((g, i) => buildCard(g, i)).join('');
+      bindStatusEvents();
+      applyFilter();
+    }
+
+    function applyFilter() {
+      document.querySelectorAll('.grant-card').forEach(card => {
+        let show = currentFilter === 'all';
+        if (!show) {
+          const f = card.dataset.filter;
+          if (currentFilter === 'applied') show = f.includes('applied');
+          else if (currentFilter === 'ignored') show = f.includes('ignored');
+          else show = f.includes(currentFilter);
+        }
+        card.style.display = show ? '' : 'none';
+      });
+    }
+
+    function bindStatusEvents() {
+      document.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.action;
+          const grantName = btn.dataset.grant;
+          const card = btn.closest('.grant-card');
+          const statuses = getStatuses();
+
+          if (action === 'applied') {
+            delete statuses[grantName].ignoredReason;
+            statuses[grantName] = { applied: true };
+          } else if (action === 'ignore') {
+            delete statuses[grantName].applied;
+            statuses[grantName] = { ignoredReason: '' };
+            card.classList.remove('applied');
+            card.classList.add('ignored');
+          } else if (action === 'clear') {
+            delete statuses[grantName];
+            card.classList.remove('applied', 'ignored');
+          }
+
+          saveStatuses(statuses);
+          showSaveIndicator();
+          updateCardDOM(card, grantName);
+          updateStats();
+          applyFilter();
+        });
+      });
+
+      document.querySelectorAll('.reason-preset').forEach(sel => {
+        sel.addEventListener('change', () => {
+          const grantName = sel.dataset.grant;
+          const customInput = document.querySelector(`.reason-custom[data-grant="${grantName}"]`);
+          if (sel.value === 'custom') {
+            customInput.style.display = '';
+            customInput.focus();
+          } else {
+            customInput.style.display = 'none';
+            commitReason(grantName, sel.value);
+          }
+        });
+      });
+
+      document.querySelectorAll('.reason-custom').forEach(inp => {
+        inp.addEventListener('blur', () => {
+          if (inp.value.trim()) commitReason(inp.dataset.grant, inp.value.trim());
+        });
+        inp.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); commitReason(inp.dataset.grant, inp.value.trim()); }
+        });
+      });
+    }
+
+    function commitReason(grantName, reason) {
+      const statuses = getStatuses();
+      statuses[grantName] = { ignoredReason: reason };
+      saveStatuses(statuses);
+      showSaveIndicator();
+      const card = document.querySelector(`.grant-card[data-index]`);
+      const idx = grants.findIndex(g => g.name === grantName);
+      if (idx >= 0) {
+        const updatedCard = document.querySelectorAll('.grant-card')[idx];
+        if (updatedCard) updateCardDOM(updatedCard, grantName);
+      }
+    }
+
+    function updateCardDOM(card, grantName) {
+      const statuses = getStatuses();
+      const status = statuses[grantName] || {};
+      const applied = status.applied === true;
+      const ignored = !!status.ignoredReason;
+      const ignoredReason = status.ignoredReason || '';
+
+      card.classList.toggle('applied', applied);
+      card.classList.toggle('ignored', ignored && !applied);
+
+      const rightEl = card.querySelector('.grant-right');
+      if (applied) {
+        rightEl.innerHTML = rightEl.innerHTML.replace(/<span class="ignored-badge[^<]*<\/span>/, '') +
+          `<span class="applied-badge">✓ Applied</span>`;
+        rightEl.querySelectorAll('.ignored-badge').forEach(e => e.remove());
+      } else if (ignored) {
+        rightEl.querySelectorAll('.applied-badge').forEach(e => e.remove());
+        const existing = rightEl.querySelector('.ignored-badge');
+        if (existing) {
+          existing.textContent = `✗ Ignored${ignoredReason ? ': ' + ignoredReason : ''}`;
+        } else {
+          rightEl.innerHTML += `<span class="ignored-badge">✗ Ignored${ignoredReason ? ': ' + ignoredReason : ''}</span>`;
+        }
+      }
+
+      const ignoreWrap = card.querySelector('.ignore-reason-wrap');
+      const preset = card.querySelector('.reason-preset');
+      const custom = card.querySelector('.reason-custom');
+
+      if (ignored && ignoredReason) {
+        ignoreWrap.classList.add('visible');
+        if (PRESET_REASONS.includes(ignoredReason)) {
+          preset.value = ignoredReason;
+          custom.style.display = 'none';
+        } else {
+          preset.value = 'custom';
+          custom.style.display = '';
+          custom.value = ignoredReason;
+        }
+      } else {
+        ignoreWrap.classList.toggle('visible', false);
+        preset.value = '';
+        custom.value = '';
+      }
+    }
+
+    function bindFilterEvents() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          applyFilter();
+        });
+      });
+    }
+
+    async function init() {
+      const data = await loadData();
+      grants = data.grants;
+
+      const statuses = getStatuses();
+      grants.forEach(g => {
+        if (statuses[g.name]) {
+          g.applied = statuses[g.name].applied || false;
+          g.ignoredReason = statuses[g.name].ignoredReason || '';
+        }
+      });
+
+      document.getElementById('stat-total').textContent = grants.length;
+      const maxGrant = Math.max(...grants.filter(g => g.amountRaw).map(g => g.amountRaw));
+      document.getElementById('stat-max').textContent = '$' + maxGrant.toLocaleString();
+      document.getElementById('stat-rolling').textContent = grants.filter(g => isRolling(g.deadline)).length;
+
+      updateStats();
+      renderAll();
+      bindFilterEvents();
+    }
+
+    init();
+  </script>
+</body>
+</html>
