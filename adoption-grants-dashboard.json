@@ -3,6 +3,16 @@
   "version": 2,
   "adoptionType": "Domestic",
   "consultant": "Christian Adoption Consultants",
+  "presetReasons": [
+    "Don't qualify — income too high",
+    "Don't qualify — not in service area",
+    "Don't qualify — already adopted / closed",
+    "Didn't have homestudy ready in time",
+    "Application fee too high",
+    "Not relevant to our situation",
+    "Waiting on home study to complete",
+    "Decided not to pursue"
+  ],
   "grants": [
     {
       "name": "Gift of Adoption Fund",

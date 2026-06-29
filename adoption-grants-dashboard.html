@@ -75,6 +75,31 @@
 
     .save-indicator.show { opacity: 1; }
 
+    .error-banner {
+      background: var(--red-dim);
+      border: 1px solid #f8717144;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+    .error-banner strong { color: var(--red); }
+
+    .export-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .export-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .last-updated { font-size: 0.72rem; color: var(--text-muted); }
+
     .summary-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -382,10 +407,16 @@
     <header>
       <h1>🎁 <span>Adoption</span> Grants Dashboard</h1>
       <div class="header-right">
+        <span class="last-updated" id="last-updated"></span>
+        <button class="export-btn" onclick="exportData()" aria-label="Export saved statuses as JSON">↓ Export</button>
         <span class="badge">Domestic Adoption</span>
         <span class="save-indicator" id="save-indicator">✓ Saved</span>
       </div>
     </header>
+
+    <div class="error-banner" id="error-banner" style="display:none">
+      <strong>⚠️ Could not load grant data.</strong> Make sure <code>adoption-grants-dashboard.json</code> is in the same folder and the page is served over a web server, not opened directly as a file.
+    </div>
 
     <div class="summary-row">
       <div class="stat-card">
@@ -446,7 +477,7 @@
 
   <script>
     const GRANT_DATA_URL = 'adoption-grants-dashboard.json';
-    const PRESET_REASONS = [
+    let PRESET_REASONS = [
       "Don't qualify — income too high",
       "Don't qualify — not in service area",
       "Don't qualify — already adopted / closed",
@@ -463,7 +494,10 @@
 
     async function loadData() {
       const res = await fetch(GRANT_DATA_URL);
-      return res.json();
+      if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
+      const data = await res.json();
+      if (!data || !Array.isArray(data.grants)) throw new Error('Invalid data format');
+      return data;
     }
 
     function loadStatuses() {
@@ -549,9 +583,9 @@
             <div class="grant-footer-left">
               <span class="sent-weeks">Sent: ${grant.sentWeeks.join(', ')}</span>
               <div class="status-controls">
-                <button class="status-btn applied-btn" data-action="applied" data-grant="${grant.name}">✓ Applied</button>
-                <button class="status-btn ignore-btn" data-action="ignore" data-grant="${grant.name}">✗ Ignore</button>
-                <button class="status-btn clear-btn" data-action="clear" data-grant="${grant.name}" title="Clear status">✕ Clear</button>
+                <button class="status-btn applied-btn" data-action="applied" data-grant="${grant.name}" aria-label="Mark ${grant.name} as applied">✓ Applied</button>
+                <button class="status-btn ignore-btn" data-action="ignore" data-grant="${grant.name}" aria-label="Ignore ${grant.name}">✗ Ignore</button>
+                <button class="status-btn clear-btn" data-action="clear" data-grant="${grant.name}" aria-label="Clear status for ${grant.name}" title="Clear status">✕ Clear</button>
                 <div class="ignore-reason-wrap">
                   <select data-grant="${grant.name}" class="reason-preset">
                     <option value="">Select reason…</option>
@@ -561,7 +595,7 @@
                 </div>
               </div>
             </div>
-            <a href="${grant.website}" target="_blank" class="apply-btn">Apply →</a>
+            <a href="${grant.website}" target="_blank" rel="noopener noreferrer" class="apply-btn" aria-label="Open application for ${grant.name}">Apply →</a>
           </div>
         </div>
       `;
@@ -621,10 +655,8 @@
           const statuses = getStatuses();
 
           if (action === 'applied') {
-            delete statuses[grantName].ignoredReason;
             statuses[grantName] = { applied: true };
           } else if (action === 'ignore') {
-            delete statuses[grantName].applied;
             statuses[grantName] = { ignoredReason: '' };
             card.classList.remove('applied');
             card.classList.add('ignored');
@@ -670,12 +702,10 @@
       statuses[grantName] = { ignoredReason: reason };
       saveStatuses(statuses);
       showSaveIndicator();
-      const card = document.querySelector(`.grant-card[data-index]`);
-      const idx = grants.findIndex(g => g.name === grantName);
-      if (idx >= 0) {
-        const updatedCard = document.querySelectorAll('.grant-card')[idx];
-        if (updatedCard) updateCardDOM(updatedCard, grantName);
-      }
+      const btn = document.querySelector(`[data-action][data-grant="${CSS.escape(grantName)}"]`);
+      if (btn) updateCardDOM(btn.closest('.grant-card'), grantName);
+      updateStats();
+      applyFilter();
     }
 
     function updateCardDOM(card, grantName) {
@@ -690,17 +720,24 @@
 
       const rightEl = card.querySelector('.grant-right');
       if (applied) {
-        rightEl.innerHTML = rightEl.innerHTML.replace(/<span class="ignored-badge[^<]*<\/span>/, '') +
-          `<span class="applied-badge">✓ Applied</span>`;
         rightEl.querySelectorAll('.ignored-badge').forEach(e => e.remove());
+        if (!rightEl.querySelector('.applied-badge')) {
+          const badge = document.createElement('span');
+          badge.className = 'applied-badge';
+          badge.textContent = '✓ Applied';
+          rightEl.appendChild(badge);
+        }
       } else if (ignored) {
         rightEl.querySelectorAll('.applied-badge').forEach(e => e.remove());
-        const existing = rightEl.querySelector('.ignored-badge');
-        if (existing) {
-          existing.textContent = `✗ Ignored${ignoredReason ? ': ' + ignoredReason : ''}`;
-        } else {
-          rightEl.innerHTML += `<span class="ignored-badge">✗ Ignored${ignoredReason ? ': ' + ignoredReason : ''}</span>`;
+        let existing = rightEl.querySelector('.ignored-badge');
+        if (!existing) {
+          existing = document.createElement('span');
+          existing.className = 'ignored-badge';
+          rightEl.appendChild(existing);
         }
+        existing.textContent = `✗ Ignored${ignoredReason ? ': ' + ignoredReason : ''}`;
+      } else {
+        rightEl.querySelectorAll('.applied-badge, .ignored-badge').forEach(e => e.remove());
       }
 
       const ignoreWrap = card.querySelector('.ignore-reason-wrap');
@@ -735,26 +772,51 @@
       });
     }
 
-    async function init() {
-      const data = await loadData();
-      grants = data.grants;
-
+    function exportData() {
       const statuses = getStatuses();
-      grants.forEach(g => {
-        if (statuses[g.name]) {
-          g.applied = statuses[g.name].applied || false;
-          g.ignoredReason = statuses[g.name].ignoredReason || '';
+      const blob = new Blob([JSON.stringify(statuses, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'adoption-grants-statuses.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    async function init() {
+      try {
+        const data = await loadData();
+
+        if (Array.isArray(data.presetReasons) && data.presetReasons.length) {
+          PRESET_REASONS = data.presetReasons;
         }
-      });
 
-      document.getElementById('stat-total').textContent = grants.length;
-      const maxGrant = Math.max(...grants.filter(g => g.amountRaw).map(g => g.amountRaw));
-      document.getElementById('stat-max').textContent = '$' + maxGrant.toLocaleString();
-      document.getElementById('stat-rolling').textContent = grants.filter(g => isRolling(g.deadline)).length;
+        grants = data.grants.filter(g => g && g.name && g.type);
 
-      updateStats();
-      renderAll();
-      bindFilterEvents();
+        if (data.lastUpdated) {
+          document.getElementById('last-updated').textContent = 'Updated ' + data.lastUpdated;
+        }
+
+        const statuses = getStatuses();
+        grants.forEach(g => {
+          if (statuses[g.name]) {
+            g.applied = statuses[g.name].applied || false;
+            g.ignoredReason = statuses[g.name].ignoredReason || '';
+          }
+        });
+
+        document.getElementById('stat-total').textContent = grants.length;
+        const rawAmounts = grants.map(g => g.amountRaw).filter(Boolean);
+        const maxGrant = rawAmounts.length ? Math.max(...rawAmounts) : 0;
+        document.getElementById('stat-max').textContent = maxGrant ? '$' + maxGrant.toLocaleString() : '—';
+        document.getElementById('stat-rolling').textContent = grants.filter(g => isRolling(g.deadline)).length;
+
+        updateStats();
+        renderAll();
+        bindFilterEvents();
+      } catch (err) {
+        console.error('Failed to load grant data:', err);
+        document.getElementById('error-banner').style.display = '';
+      }
     }
 
     init();
