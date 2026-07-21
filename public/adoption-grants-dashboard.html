@@ -535,7 +535,10 @@
     function getStatuses() { return statusCache; }
 
     // Optimistically updates the in-memory cache/DOM, then persists to the server.
+    // Rolls back to the previous status if the server request fails.
     async function setStatus(grantName, card, patch) {
+      const previous = statusCache[grantName] ? { ...statusCache[grantName] } : undefined;
+
       if (patch === null) delete statusCache[grantName];
       else statusCache[grantName] = { applied: false, ignoredReason: '', ...patch };
 
@@ -549,6 +552,11 @@
         showSaveIndicator(true);
       } catch (err) {
         console.error('Failed to save status:', err);
+        if (previous === undefined) delete statusCache[grantName];
+        else statusCache[grantName] = previous;
+        if (card) updateCardDOM(card, grantName);
+        updateStats();
+        applyFilter();
         showSaveIndicator(false);
       }
     }
@@ -689,9 +697,18 @@
           if (action === 'applied') {
             setStatus(grantName, card, { applied: true, ignoredReason: '' });
           } else if (action === 'ignore') {
-            card.classList.remove('applied');
-            card.classList.add('ignored');
-            setStatus(grantName, card, { applied: false, ignoredReason: '' });
+            // Just reveal the reason picker — nothing is persisted until a reason is committed.
+            const wrap = card.querySelector('.ignore-reason-wrap');
+            const preset = wrap.querySelector('.reason-preset');
+            const custom = wrap.querySelector('.reason-custom');
+            const opening = !wrap.classList.contains('visible');
+            wrap.classList.toggle('visible', opening);
+            if (opening) {
+              preset.value = '';
+              custom.value = '';
+              custom.style.display = 'none';
+              preset.focus();
+            }
           } else if (action === 'clear') {
             card.classList.remove('applied', 'ignored');
             setStatus(grantName, card, null);

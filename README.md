@@ -26,13 +26,25 @@ docker compose up -d --build
 ```
 
 This builds the image, starts the server on port `3000`, and persists the
-SQLite database to `./data/statuses.db` on the host (bind-mounted into the
-container) so status data survives container recreation/updates.
+SQLite database in the `dashboard-data` named Docker volume so status data
+survives container recreation/updates. A named volume (rather than a host
+bind mount) is used so the container's non-root `node` user always has
+write access, regardless of host directory permissions.
 
 In Portainer: create a stack from this repo's `docker-compose.yml`, or point
 a Portainer "Git repository" stack at this repo. Put your existing Nginx
 Proxy Manager / Cloudflare setup in front of port `3000` like any other
 container.
+
+The container also declares a `HEALTHCHECK` (via `GET /api/health`), so
+Portainer/Docker report the container as unhealthy if the server or its
+database becomes unreachable.
+
+**Access control:** the app has no login of its own — anyone who can reach
+port `3000` can view and change grant statuses. Restrict access at the
+reverse-proxy layer (e.g. HTTP Basic Auth in Nginx Proxy Manager, or
+Cloudflare Access if it's exposed through a tunnel) rather than relying on
+TLS termination alone.
 
 ### Without Docker
 
@@ -81,13 +93,17 @@ The server exposes a small JSON API used by the front end:
 
 | Endpoint | Description |
 | --- | --- |
+| `GET /api/health` | Health check — verifies the server can query the database |
 | `GET /api/statuses` | Returns all saved statuses, keyed by grant name |
-| `PUT /api/statuses/:name` | Upserts a status: `{ "applied": bool, "ignoredReason": string }` |
+| `PUT /api/statuses/:name` | Upserts a status: `{ "applied": bool, "ignoredReason": string }`. If `applied` is `false` and `ignoredReason` is empty, this deletes the saved status instead of storing an empty row. |
 | `DELETE /api/statuses/:name` | Clears a grant's saved status |
 
 ## Notes
 
 - Saved statuses are keyed by grant `name`; renaming an entry in the JSON will
   disconnect it from any previously saved status.
-- The SQLite database lives at `DB_PATH` (default `./data/statuses.db`). Back
-  it up like any other file if you want to keep a history of your statuses.
+- The SQLite database lives at `DB_PATH` (default `./data/statuses.db` when
+  run without Docker). Under Docker Compose it lives inside the
+  `dashboard-data` named volume — back it up with
+  `docker run --rm -v adoption_dashboard_dashboard-data:/data -v "$PWD":/backup alpine tar czf /backup/statuses-backup.tgz -C /data .`
+  (adjust the volume name if Compose derives a different project prefix).

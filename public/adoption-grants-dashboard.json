@@ -284,7 +284,9 @@
       "details": "Show Hope is currently accepting applications for their Adoption Aid grant. These grants help families pursuing domestic or international adoption. Their current application window is open through June 30th \u2014 don't miss this one!",
       "sentWeeks": [
         "June 15"
-      ]
+      ],
+      "applied": false,
+      "ignoredReason": ""
     },
     {
       "name": "Here I Am Orphan Ministries \u2014 Adoption Grant & Loan Program",
@@ -297,7 +299,9 @@
       "details": "Specifically for Christian families adopting waiting children \u2014 older kids, special needs, or sibling groups. Out-of-state families welcome. Applications due soon!",
       "sentWeeks": [
         "June 15"
-      ]
+      ],
+      "applied": false,
+      "ignoredReason": ""
     },
     {
       "name": "Help Us Adopt",
@@ -310,7 +314,9 @@
       "details": "One of the most generous adoption grants available. Six award cycles per year. Open to all regardless of ethnicity, gender, marital status, religion, or sexual orientation. They're awarding $2.7 million in grants in 2025 alone!",
       "sentWeeks": [
         "June 15"
-      ]
+      ],
+      "applied": false,
+      "ignoredReason": ""
     },
     {
       "name": "A Child Waits Foundation \u2014 Domestic Adoption Grant",
@@ -323,7 +329,9 @@
       "details": "Specifically for domestic adoption! Grants are awarded weekly. Apply any time after you have a completed homestudy.",
       "sentWeeks": [
         "June 15"
-      ]
+      ],
+      "applied": false,
+      "ignoredReason": ""
     },
     {
       "name": "ABBA Fund \u2014 Christian Family Adoption Grant",
@@ -336,7 +344,9 @@
       "details": "Christian-focused grant program. Has provided over $9 million in adoption assistance. No application deadline \u2014 apply anytime after completing your home study and accepting a match.",
       "sentWeeks": [
         "June 15"
-      ]
+      ],
+      "applied": false,
+      "ignoredReason": ""
     },
     {
       "name": "Lifesong for Orphans \u2014 Matching Grants",
@@ -349,7 +359,9 @@
       "details": "Matching grant program that mobilizes the Body of Christ to support your adoption journey. Raises funds through their network of supporters.",
       "sentWeeks": [
         "June 15"
-      ]
+      ],
+      "applied": false,
+      "ignoredReason": ""
     }
   ]
 }

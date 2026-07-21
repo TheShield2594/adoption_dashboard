@@ -6,4 +6,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./data:/app/data
+      - dashboard-data:/app/data
+
+volumes:
+  dashboard-data:
