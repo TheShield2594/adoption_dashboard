@@ -10,6 +10,11 @@ const GRANT_FETCH_CRON = process.env.GRANT_FETCH_CRON || '0 17 * * 1';
 
 db.seedFromJsonIfEmpty(SEED_JSON_PATH);
 
+const removedAtBoot = db.removeExpiredGrants();
+if (removedAtBoot.length) {
+  console.log(`🗑️  Removed ${removedAtBoot.length} expired grant(s): ${removedAtBoot.join(', ')}`);
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -24,6 +29,10 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/api/grants', (req, res) => {
+  const removed = db.removeExpiredGrants();
+  if (removed.length) {
+    console.log(`🗑️  Removed ${removed.length} expired grant(s): ${removed.join(', ')}`);
+  }
   const grants = db.getAllGrants();
   let presetReasons = [];
   try { presetReasons = JSON.parse(db.getMeta('presetReasons', '[]')); } catch { /* leave as [] */ }
@@ -44,8 +53,9 @@ app.get('/api/statuses', (req, res) => {
 
 app.put('/api/statuses/:name', (req, res) => {
   const applied = req.body.applied === true;
+  const rejected = req.body.rejected === true;
   const ignoredReason = typeof req.body.ignoredReason === 'string' ? req.body.ignoredReason : '';
-  db.upsertStatus(req.params.name, applied, ignoredReason);
+  db.upsertStatus(req.params.name, applied, ignoredReason, rejected);
   res.json({ ok: true });
 });
 

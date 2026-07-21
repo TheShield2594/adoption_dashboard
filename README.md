@@ -95,13 +95,21 @@ file location (`./data/statuses.db`).
 ## Features
 
 - **Filters** by program type (grant, matching grant, tax credit, employer benefit,
-  federal assistance, resource), no-deadline programs, applied, and ignored.
+  federal assistance, resource), no-deadline programs, applied, rejected, and ignored.
 - **Status tracking** — mark a grant as Applied or Ignored (with a preset or custom
-  reason). Status is saved to a server-side SQLite database via a small JSON API,
-  so it persists across reloads and devices.
+  reason). An applied grant can later be marked Rejected if the application is
+  turned down. Status is saved to a server-side SQLite database via a small JSON
+  API, so it persists across reloads and devices.
+- **Expired grants are removed automatically** — when a grant's deadline contains
+  an explicit calendar date (e.g. `"June 30, 2026"` or `"6/30/2026"`) and that
+  date has passed, the grant (and any saved status for it) is deleted at server
+  startup and on each grant-list fetch. Vague deadlines ("Rolling", "Check
+  website", "Quarterly cycles") never expire.
 - **Export** — download your saved statuses as a JSON file.
 - **Summary stats** — total programs, max grant potential, no-deadline count,
-  applied/ignored counts, and combined tax + employer benefit potential.
+  applied/rejected/ignored counts, the total potential amount across grants you
+  have applied for (rejected applications excluded), and combined tax + employer
+  benefit potential.
 
 ## Editing the data
 
@@ -133,9 +141,9 @@ The server exposes a small JSON API used by the front end:
 | Endpoint | Description |
 | --- | --- |
 | `GET /api/health` | Health check — verifies the server can query the database |
-| `GET /api/grants` | Returns the full grant list plus metadata (`lastUpdated`, `presetReasons`, etc.), read from SQLite |
+| `GET /api/grants` | Returns the full grant list plus metadata (`lastUpdated`, `presetReasons`, etc.), read from SQLite. Grants whose deadline date has passed are removed before the list is returned. |
 | `GET /api/statuses` | Returns all saved statuses, keyed by grant name |
-| `PUT /api/statuses/:name` | Upserts a status: `{ "applied": bool, "ignoredReason": string }`. If `applied` is `false` and `ignoredReason` is empty, this deletes the saved status instead of storing an empty row. |
+| `PUT /api/statuses/:name` | Upserts a status: `{ "applied": bool, "ignoredReason": string, "rejected": bool }`. If all three are false/empty, this deletes the saved status instead of storing an empty row. |
 | `DELETE /api/statuses/:name` | Clears a grant's saved status |
 
 ## Notes

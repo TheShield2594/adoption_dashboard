@@ -13,6 +13,7 @@ db.exec(`
     grant_name TEXT PRIMARY KEY,
     applied INTEGER NOT NULL DEFAULT 0,
     ignored_reason TEXT NOT NULL DEFAULT '',
+    rejected INTEGER NOT NULL DEFAULT 0,
     updated_at TEXT NOT NULL
   );
 
@@ -37,15 +38,22 @@ db.exec(`
   );
 `);
 
+// Databases created before the rejected feature lack the column.
+const statusColumns = db.prepare('PRAGMA table_info(statuses)').all().map((c) => c.name);
+if (!statusColumns.includes('rejected')) {
+  db.exec("ALTER TABLE statuses ADD COLUMN rejected INTEGER NOT NULL DEFAULT 0");
+}
+
 // Statuses -----------------------------------------------------------------
 
-const getAllStatusesStmt = db.prepare('SELECT grant_name, applied, ignored_reason FROM statuses');
+const getAllStatusesStmt = db.prepare('SELECT grant_name, applied, ignored_reason, rejected FROM statuses');
 const upsertStatusStmt = db.prepare(`
-  INSERT INTO statuses (grant_name, applied, ignored_reason, updated_at)
-  VALUES (@grantName, @applied, @ignoredReason, @updatedAt)
+  INSERT INTO statuses (grant_name, applied, ignored_reason, rejected, updated_at)
+  VALUES (@grantName, @applied, @ignoredReason, @rejected, @updatedAt)
   ON CONFLICT(grant_name) DO UPDATE SET
     applied = excluded.applied,
     ignored_reason = excluded.ignored_reason,
+    rejected = excluded.rejected,
     updated_at = excluded.updated_at
 `);
 const deleteStatusStmt = db.prepare('DELETE FROM statuses WHERE grant_name = ?');
@@ -53,20 +61,25 @@ const deleteStatusStmt = db.prepare('DELETE FROM statuses WHERE grant_name = ?')
 function getAllStatuses() {
   const result = {};
   for (const row of getAllStatusesStmt.all()) {
-    if (!row.applied && !row.ignored_reason) continue;
-    result[row.grant_name] = { applied: !!row.applied, ignoredReason: row.ignored_reason };
+    if (!row.applied && !row.ignored_reason && !row.rejected) continue;
+    result[row.grant_name] = {
+      applied: !!row.applied,
+      ignoredReason: row.ignored_reason,
+      rejected: !!row.rejected,
+    };
   }
   return result;
 }
 
-function upsertStatus(grantName, applied, ignoredReason) {
-  if (!applied && !ignoredReason) {
+function upsertStatus(grantName, applied, ignoredReason, rejected) {
+  if (!applied && !ignoredReason && !rejected) {
     deleteStatusStmt.run(grantName);
   } else {
     upsertStatusStmt.run({
       grantName,
       applied: applied ? 1 : 0,
       ignoredReason,
+      rejected: rejected ? 1 : 0,
       updatedAt: new Date().toISOString(),
     });
   }
@@ -134,6 +147,52 @@ function insertGrant(grant, source = 'auto-discovered') {
   });
 }
 
+// Expiry ---------------------------------------------------------------------
+
+const listGrantDeadlinesStmt = db.prepare('SELECT name, deadline FROM grants');
+const deleteGrantStmt = db.prepare('DELETE FROM grants WHERE name = ?');
+
+const MONTHS = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+
+// Pulls a concrete calendar date out of a free-text deadline. Only explicit
+// "Month D, YYYY" or "M/D/YYYY" forms count — vague deadlines ("Rolling",
+// "Check website", "Quarterly cycles") never expire.
+function parseDeadlineDate(deadline) {
+  if (!deadline) return null;
+  const monthMatch = deadline.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})\b/i);
+  if (monthMatch) {
+    return new Date(Number(monthMatch[3]), MONTHS[monthMatch[1].toLowerCase()], Number(monthMatch[2]));
+  }
+  const numericMatch = deadline.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/);
+  if (numericMatch) {
+    return new Date(Number(numericMatch[3]), Number(numericMatch[1]) - 1, Number(numericMatch[2]));
+  }
+  return null;
+}
+
+// A grant expires the day after its deadline date. Removes the grant and any
+// saved status for it; returns the removed names.
+function removeExpiredGrants(now = new Date()) {
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const expired = listGrantDeadlinesStmt.all()
+    .filter((row) => {
+      const d = parseDeadlineDate(row.deadline);
+      return d && d < startOfToday;
+    })
+    .map((row) => row.name);
+
+  if (expired.length) {
+    const remove = db.transaction((names) => {
+      for (const name of names) {
+        deleteGrantStmt.run(name);
+        deleteStatusStmt.run(name);
+      }
+    });
+    remove(expired);
+  }
+  return expired;
+}
+
 // Meta -------------------------------------------------------------------
 
 const getMetaStmt = db.prepare('SELECT value FROM meta WHERE key = ?');
@@ -196,6 +255,8 @@ module.exports = {
   getGrantNames,
   grantsCount,
   insertGrant,
+  parseDeadlineDate,
+  removeExpiredGrants,
   getMeta,
   setMeta,
   seedFromJsonIfEmpty,
