@@ -196,6 +196,7 @@
 
     .grant-card.applied { border-color: #34d39955; }
     .grant-card.ignored { border-color: #fbbf2433; }
+    .grant-card.rejected { border-color: #f8717155; }
 
     .grant-header {
       display: flex;
@@ -232,6 +233,19 @@
     }
 
     .grant-card.applied .applied-badge { display: inline-block; }
+
+    .rejected-badge {
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid #f8717155;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: none;
+    }
+
+    .grant-card.rejected .rejected-badge { display: inline-block; }
 
     .grant-meta {
       display: flex;
@@ -364,8 +378,16 @@
     .grant-card.ignored .ignored-badge { display: inline-block; }
     .grant-card.ignored .status-btn.ignore-btn { display: none; }
     .grant-card.ignored .applied-btn { display: none; }
-    .grant-card.applied .status-btn { display: none; }
+    .grant-card.applied .applied-btn { display: none; }
+    .grant-card.applied .ignore-btn { display: none; }
     .grant-card.applied .ignore-reason-wrap { display: none !important; }
+
+    .status-btn.reject-btn { display: none; }
+    .status-btn.reject-btn:hover { border-color: var(--red); color: var(--red); }
+    .grant-card.applied .status-btn.reject-btn { display: inline-block; }
+    .grant-card.rejected .applied-btn { display: none; }
+    .grant-card.rejected .ignore-btn { display: none; }
+    .grant-card.rejected .ignore-reason-wrap { display: none !important; }
 
     .apply-btn {
       background: var(--accent);
@@ -436,6 +458,14 @@
         <div class="value green" id="stat-applied">0</div>
       </div>
       <div class="stat-card">
+        <div class="label">Applied Total</div>
+        <div class="value green" id="stat-applied-total">$0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Rejected</div>
+        <div class="value red" id="stat-rejected">0</div>
+      </div>
+      <div class="stat-card">
         <div class="label">Ignored</div>
         <div class="value yellow" id="stat-ignored">0</div>
       </div>
@@ -459,6 +489,7 @@
       <button class="filter-btn" data-filter="resource">Resources<span class="count" id="count-resource">—</span></button>
       <button class="filter-btn" data-filter="rolling">No Deadline ✓<span class="count" id="count-rolling">—</span></button>
       <button class="filter-btn" data-filter="applied">Applied ✓<span class="count" id="count-applied">—</span></button>
+      <button class="filter-btn" data-filter="rejected">Rejected ✗<span class="count" id="count-rejected">—</span></button>
       <button class="filter-btn" data-filter="ignored">Ignored<span class="count" id="count-ignored">—</span></button>
     </div>
 
@@ -540,7 +571,7 @@
       const previous = statusCache[grantName] ? { ...statusCache[grantName] } : undefined;
 
       if (patch === null) delete statusCache[grantName];
-      else statusCache[grantName] = { applied: false, ignoredReason: '', ...patch };
+      else statusCache[grantName] = { applied: false, ignoredReason: '', rejected: false, ...patch };
 
       if (card) updateCardDOM(card, grantName);
       updateStats();
@@ -584,16 +615,19 @@
       const rolling = isRolling(grant.deadline);
       const statuses = getStatuses();
       const status = statuses[grant.name] || {};
-      const applied = status.applied === true;
-      const ignored = !!status.ignoredReason;
+      const rejected = status.rejected === true;
+      const applied = status.applied === true && !rejected;
+      const ignored = !!status.ignoredReason && !rejected;
       const ignoredReason = status.ignoredReason || '';
 
       let cardClass = 'grant-card';
-      if (applied) cardClass += ' applied';
+      if (rejected) cardClass += ' rejected';
+      else if (applied) cardClass += ' applied';
       else if (ignored) cardClass += ' ignored';
 
       let filterAttr = rolling ? `data-filter="rolling ${grant.type}` : `data-filter="${grant.type}`;
-      if (applied) filterAttr += ' applied';
+      if (rejected) filterAttr += ' rejected';
+      else if (applied) filterAttr += ' applied';
       if (ignored) filterAttr += ' ignored';
       filterAttr += '"';
 
@@ -611,6 +645,7 @@
             <div class="grant-right">
               <div class="grant-amount ${ac}">${grant.amount}</div>
               ${applied ? `<span class="applied-badge">✓ Applied</span>` : ''}
+              ${rejected ? `<span class="rejected-badge">✗ Rejected</span>` : ''}
               ${ignoredBadgeHtml}
             </div>
           </div>
@@ -625,6 +660,7 @@
               <span class="sent-weeks">Sent: ${grant.sentWeeks.join(', ')}</span>
               <div class="status-controls">
                 <button class="status-btn applied-btn" data-action="applied" data-grant="${grant.name}" aria-label="Mark ${grant.name} as applied">✓ Applied</button>
+                <button class="status-btn reject-btn" data-action="rejected" data-grant="${grant.name}" aria-label="Mark ${grant.name} as rejected">✗ Rejected</button>
                 <button class="status-btn ignore-btn" data-action="ignore" data-grant="${grant.name}" aria-label="Ignore ${grant.name}">✗ Ignore</button>
                 <button class="status-btn clear-btn" data-action="clear" data-grant="${grant.name}" aria-label="Clear status for ${grant.name}" title="Clear status">✕ Clear</button>
                 <div class="ignore-reason-wrap">
@@ -644,18 +680,21 @@
 
     function updateStats() {
       const statuses = getStatuses();
-      let applied = 0, ignored = 0;
+      let applied = 0, ignored = 0, rejected = 0, appliedTotal = 0;
       grants.forEach(g => {
         const s = statuses[g.name] || {};
-        if (s.applied) applied++;
+        if (s.rejected) rejected++;
+        else if (s.applied) { applied++; appliedTotal += Number(g.amountRaw) || 0; }
         else if (s.ignoredReason) ignored++;
       });
 
       document.getElementById('stat-applied').textContent = applied;
+      document.getElementById('stat-applied-total').textContent = '$' + appliedTotal.toLocaleString();
+      document.getElementById('stat-rejected').textContent = rejected;
       document.getElementById('stat-ignored').textContent = ignored;
 
       // Update filter counts
-      const counts = { all: grants.length, applied, ignored };
+      const counts = { all: grants.length, applied, ignored, rejected };
       ['grant', 'matching_grant', 'tax_credit', 'employer_benefit', 'federal_assistance', 'resource'].forEach(t => {
         counts[t] = grants.filter(g => g.type === t).length;
       });
@@ -680,6 +719,7 @@
         if (!show) {
           const f = card.dataset.filter;
           if (currentFilter === 'applied') show = f.includes('applied');
+          else if (currentFilter === 'rejected') show = f.includes('rejected');
           else if (currentFilter === 'ignored') show = f.includes('ignored');
           else show = f.includes(currentFilter);
         }
@@ -695,7 +735,10 @@
           const card = btn.closest('.grant-card');
 
           if (action === 'applied') {
-            setStatus(grantName, card, { applied: true, ignoredReason: '' });
+            setStatus(grantName, card, { applied: true, ignoredReason: '', rejected: false });
+          } else if (action === 'rejected') {
+            // Keeps applied=true so the history of having applied is preserved.
+            setStatus(grantName, card, { applied: true, ignoredReason: '', rejected: true });
           } else if (action === 'ignore') {
             // Just reveal the reason picker — nothing is persisted until a reason is committed.
             const wrap = card.querySelector('.ignore-reason-wrap');
@@ -710,7 +753,7 @@
               preset.focus();
             }
           } else if (action === 'clear') {
-            card.classList.remove('applied', 'ignored');
+            card.classList.remove('applied', 'ignored', 'rejected');
             setStatus(grantName, card, null);
           }
         });
@@ -743,22 +786,40 @@
     function commitReason(grantName, reason) {
       const btn = document.querySelector(`[data-action][data-grant="${CSS.escape(grantName)}"]`);
       const card = btn ? btn.closest('.grant-card') : null;
-      setStatus(grantName, card, { applied: false, ignoredReason: reason });
+      setStatus(grantName, card, { applied: false, ignoredReason: reason, rejected: false });
     }
 
     function updateCardDOM(card, grantName) {
       const statuses = getStatuses();
       const status = statuses[grantName] || {};
-      const applied = status.applied === true;
-      const ignored = !!status.ignoredReason;
+      const rejected = status.rejected === true;
+      const applied = status.applied === true && !rejected;
+      const ignored = !!status.ignoredReason && !rejected;
       const ignoredReason = status.ignoredReason || '';
 
+      card.classList.toggle('rejected', rejected);
       card.classList.toggle('applied', applied);
       card.classList.toggle('ignored', ignored && !applied);
 
+      // Keep data-filter in sync with the status so filters work without a reload.
+      const filterTokens = (card.dataset.filter || '').split(' ')
+        .filter(t => t && t !== 'applied' && t !== 'ignored' && t !== 'rejected');
+      if (rejected) filterTokens.push('rejected');
+      else if (applied) filterTokens.push('applied');
+      if (ignored) filterTokens.push('ignored');
+      card.dataset.filter = filterTokens.join(' ');
+
       const rightEl = card.querySelector('.grant-right');
-      if (applied) {
-        rightEl.querySelectorAll('.ignored-badge').forEach(e => e.remove());
+      if (rejected) {
+        rightEl.querySelectorAll('.applied-badge, .ignored-badge').forEach(e => e.remove());
+        if (!rightEl.querySelector('.rejected-badge')) {
+          const badge = document.createElement('span');
+          badge.className = 'rejected-badge';
+          badge.textContent = '✗ Rejected';
+          rightEl.appendChild(badge);
+        }
+      } else if (applied) {
+        rightEl.querySelectorAll('.ignored-badge, .rejected-badge').forEach(e => e.remove());
         if (!rightEl.querySelector('.applied-badge')) {
           const badge = document.createElement('span');
           badge.className = 'applied-badge';
@@ -766,7 +827,7 @@
           rightEl.appendChild(badge);
         }
       } else if (ignored) {
-        rightEl.querySelectorAll('.applied-badge').forEach(e => e.remove());
+        rightEl.querySelectorAll('.applied-badge, .rejected-badge').forEach(e => e.remove());
         let existing = rightEl.querySelector('.ignored-badge');
         if (!existing) {
           existing = document.createElement('span');
@@ -775,7 +836,7 @@
         }
         existing.textContent = `✗ Ignored${ignoredReason ? ': ' + ignoredReason : ''}`;
       } else {
-        rightEl.querySelectorAll('.applied-badge, .ignored-badge').forEach(e => e.remove());
+        rightEl.querySelectorAll('.applied-badge, .ignored-badge, .rejected-badge').forEach(e => e.remove());
       }
 
       const ignoreWrap = card.querySelector('.ignore-reason-wrap');
