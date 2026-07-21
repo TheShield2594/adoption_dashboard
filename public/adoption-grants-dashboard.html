@@ -415,7 +415,7 @@
     </header>
 
     <div class="error-banner" id="error-banner" role="alert" aria-live="assertive" style="display:none">
-      <strong>⚠️ Could not load grant data.</strong> Make sure <code>adoption-grants-dashboard.json</code> is in the same folder and the page is served over a web server, not opened directly as a file.
+      <strong>⚠️ Could not load grant data or saved statuses.</strong> Make sure the dashboard server is running and reachable.
     </div>
 
     <div class="summary-row">
@@ -477,6 +477,7 @@
 
   <script>
     const GRANT_DATA_URL = 'adoption-grants-dashboard.json';
+    const STATUS_API_URL = 'api/statuses';
     let PRESET_REASONS = [
       "Don't qualify — income too high",
       "Don't qualify — not in service area",
@@ -500,25 +501,57 @@
       return data;
     }
 
-    function loadStatuses() {
-      try {
-        const saved = JSON.parse(localStorage.getItem('adoption-grants-status') || '{}');
-        return saved;
-      } catch { return {}; }
+    let statusCache = {};
+
+    async function fetchStatuses() {
+      const res = await fetch(STATUS_API_URL);
+      if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
+      return res.json();
     }
 
-    function saveStatuses(statuses) {
-      localStorage.setItem('adoption-grants-status', JSON.stringify(statuses));
+    async function persistStatus(grantName, patch) {
+      const res = await fetch(`${STATUS_API_URL}/${encodeURIComponent(grantName)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
     }
 
-    function showSaveIndicator() {
+    async function deleteStatus(grantName) {
+      const res = await fetch(`${STATUS_API_URL}/${encodeURIComponent(grantName)}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
+    }
+
+    function showSaveIndicator(ok = true) {
       const el = document.getElementById('save-indicator');
+      el.textContent = ok ? '✓ Saved' : '⚠ Save failed';
+      el.style.color = ok ? 'var(--green)' : 'var(--red)';
       el.classList.add('show');
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => el.classList.remove('show'), 2000);
     }
 
-    function getStatuses() { return loadStatuses(); }
+    function getStatuses() { return statusCache; }
+
+    // Optimistically updates the in-memory cache/DOM, then persists to the server.
+    async function setStatus(grantName, card, patch) {
+      if (patch === null) delete statusCache[grantName];
+      else statusCache[grantName] = { applied: false, ignoredReason: '', ...patch };
+
+      if (card) updateCardDOM(card, grantName);
+      updateStats();
+      applyFilter();
+
+      try {
+        if (patch === null) await deleteStatus(grantName);
+        else await persistStatus(grantName, statusCache[grantName]);
+        showSaveIndicator(true);
+      } catch (err) {
+        console.error('Failed to save status:', err);
+        showSaveIndicator(false);
+      }
+    }
 
     function amountClass(amount, type) {
       if (type === 'tax_credit' || type === 'employer_benefit') return 'info';
@@ -652,24 +685,17 @@
           const action = btn.dataset.action;
           const grantName = btn.dataset.grant;
           const card = btn.closest('.grant-card');
-          const statuses = getStatuses();
 
           if (action === 'applied') {
-            statuses[grantName] = { applied: true };
+            setStatus(grantName, card, { applied: true, ignoredReason: '' });
           } else if (action === 'ignore') {
-            statuses[grantName] = { ignoredReason: '' };
             card.classList.remove('applied');
             card.classList.add('ignored');
+            setStatus(grantName, card, { applied: false, ignoredReason: '' });
           } else if (action === 'clear') {
-            delete statuses[grantName];
             card.classList.remove('applied', 'ignored');
+            setStatus(grantName, card, null);
           }
-
-          saveStatuses(statuses);
-          showSaveIndicator();
-          updateCardDOM(card, grantName);
-          updateStats();
-          applyFilter();
         });
       });
 
@@ -698,14 +724,9 @@
     }
 
     function commitReason(grantName, reason) {
-      const statuses = getStatuses();
-      statuses[grantName] = { ignoredReason: reason };
-      saveStatuses(statuses);
-      showSaveIndicator();
       const btn = document.querySelector(`[data-action][data-grant="${CSS.escape(grantName)}"]`);
-      if (btn) updateCardDOM(btn.closest('.grant-card'), grantName);
-      updateStats();
-      applyFilter();
+      const card = btn ? btn.closest('.grant-card') : null;
+      setStatus(grantName, card, { applied: false, ignoredReason: reason });
     }
 
     function updateCardDOM(card, grantName) {
@@ -784,7 +805,8 @@
 
     async function init() {
       try {
-        const data = await loadData();
+        const [data, statuses] = await Promise.all([loadData(), fetchStatuses()]);
+        statusCache = statuses || {};
 
         if (Array.isArray(data.presetReasons) && data.presetReasons.length) {
           PRESET_REASONS = data.presetReasons;
@@ -796,11 +818,10 @@
           document.getElementById('last-updated').textContent = 'Updated ' + data.lastUpdated;
         }
 
-        const statuses = getStatuses();
         grants.forEach(g => {
-          if (statuses[g.name]) {
-            g.applied = statuses[g.name].applied || false;
-            g.ignoredReason = statuses[g.name].ignoredReason || '';
+          if (statusCache[g.name]) {
+            g.applied = statusCache[g.name].applied || false;
+            g.ignoredReason = statusCache[g.name].ignoredReason || '';
           }
         });
 
