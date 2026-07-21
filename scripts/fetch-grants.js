@@ -6,6 +6,8 @@
 // OpenRouter model to extract genuinely new grant programs -> insert into
 // SQLite -> post a summary to Discord.
 
+const dns = require('node:dns').promises;
+const net = require('node:net');
 const db = require('../db');
 
 const SOURCES = [
@@ -46,20 +48,86 @@ function normalizeName(name) {
     .trim();
 }
 
+// Blocks SSRF via scraped/discovered URLs pointing at loopback, private,
+// link-local (incl. cloud-metadata 169.254.169.254), or other non-public
+// destinations — checked on the initial URL and on every redirect hop.
+
+function isPrivateIPv4(ip) {
+  const parts = ip.split('.').map(Number);
+  if (parts.length !== 4 || parts.some((n) => Number.isNaN(n))) return true;
+  const [a, b] = parts;
+  if (a === 127) return true; // loopback
+  if (a === 10) return true; // private
+  if (a === 172 && b >= 16 && b <= 31) return true; // private
+  if (a === 192 && b === 168) return true; // private
+  if (a === 169 && b === 254) return true; // link-local / cloud metadata
+  if (a === 100 && b >= 64 && b <= 127) return true; // carrier-grade NAT
+  if (a === 0) return true; // "this" network
+  if (a >= 224) return true; // multicast + reserved
+  return false;
+}
+
+function isPrivateIPv6(ip) {
+  const lower = ip.toLowerCase();
+  if (lower === '::1') return true; // loopback
+  if (/^fe[89ab][0-9a-f]:/.test(lower)) return true; // link-local fe80::/10
+  if (/^f[cd][0-9a-f]{2}:/.test(lower)) return true; // unique local fc00::/7
+  if (lower.startsWith('ff')) return true; // multicast
+  const mapped = lower.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+  if (mapped) return isPrivateIPv4(mapped[1]);
+  return false;
+}
+
+async function isPublicHttpUrl(urlString) {
+  let parsed;
+  try { parsed = new URL(urlString); } catch { return false; }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
+
+  const hostname = parsed.hostname;
+  const ipVersion = net.isIP(hostname);
+  if (ipVersion) {
+    return ipVersion === 4 ? !isPrivateIPv4(hostname) : !isPrivateIPv6(hostname);
+  }
+
+  let addresses;
+  try {
+    addresses = await dns.lookup(hostname, { all: true, verbatim: true });
+  } catch {
+    return false;
+  }
+  if (addresses.length === 0) return false;
+  return addresses.every(({ address, family }) => (family === 4 ? !isPrivateIPv4(address) : !isPrivateIPv6(address)));
+}
+
+const MAX_REDIRECTS = 5;
+
 async function scrapePage(url) {
-  const resp = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; AdoptionGrantsBot/1.0)' },
-    signal: AbortSignal.timeout(15_000),
-  });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const html = await resp.text();
-  return html
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/\s+/g, ' ')
-    .trim();
+  let currentUrl = url;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    if (!(await isPublicHttpUrl(currentUrl))) {
+      throw new Error(`blocked non-public URL: ${currentUrl}`);
+    }
+    const resp = await fetch(currentUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; AdoptionGrantsBot/1.0)' },
+      signal: AbortSignal.timeout(15_000),
+      redirect: 'manual',
+    });
+    const location = resp.headers.get('location');
+    if (resp.status >= 300 && resp.status < 400 && location) {
+      currentUrl = new URL(location, currentUrl).toString();
+      continue;
+    }
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const html = await resp.text();
+    return html
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+  throw new Error('too many redirects');
 }
 
 async function discoverPagesViaSearxng(existingUrls) {
@@ -82,6 +150,10 @@ async function discoverPagesViaSearxng(existingUrls) {
         if (discovered.length >= MAX_DISCOVERED_PAGES) break;
         if (!result.url || seenUrls.has(result.url)) continue;
         seenUrls.add(result.url);
+        if (!(await isPublicHttpUrl(result.url))) {
+          console.log(`  Skipping non-public discovered URL: ${result.url}`);
+          continue;
+        }
         discovered.push({ label: result.title || result.url, url: result.url });
       }
     } catch (err) {
@@ -238,7 +310,12 @@ async function main() {
     if (trulyNew.length > 0) db.setMeta('lastUpdated', new Date().toISOString().split('T')[0]);
   }
 
-  await postToDiscord(buildDiscordMessage({ weekLabel, pageCount: pages.length, newGrants: trulyNew, isDryRun }));
+  const message = buildDiscordMessage({ weekLabel, pageCount: pages.length, newGrants: trulyNew, isDryRun });
+  if (isDryRun) {
+    console.log(`\n📨 Would post to Discord:\n${message}`);
+  } else {
+    await postToDiscord(message);
+  }
 }
 
 module.exports = main;

@@ -160,7 +160,7 @@ function seedFromJsonIfEmpty(seedJsonPath) {
   const raw = JSON.parse(fs.readFileSync(seedJsonPath, 'utf-8'));
   const now = new Date().toISOString();
 
-  const insertMany = db.transaction((grantList) => {
+  const seed = db.transaction((grantList) => {
     for (const g of grantList) {
       if (!g || !g.name) continue;
       insertGrantStmt.run({
@@ -178,14 +178,13 @@ function seedFromJsonIfEmpty(seedJsonPath) {
         updatedAt: raw.lastUpdated || now,
       });
     }
+    setMeta('version', String(raw.version || 2));
+    setMeta('adoptionType', raw.adoptionType || '');
+    setMeta('consultant', raw.consultant || '');
+    setMeta('presetReasons', JSON.stringify(raw.presetReasons || []));
+    setMeta('lastUpdated', raw.lastUpdated || now.split('T')[0]);
   });
-  insertMany(Array.isArray(raw.grants) ? raw.grants : []);
-
-  setMeta('version', String(raw.version || 2));
-  setMeta('adoptionType', raw.adoptionType || '');
-  setMeta('consultant', raw.consultant || '');
-  setMeta('presetReasons', JSON.stringify(raw.presetReasons || []));
-  setMeta('lastUpdated', raw.lastUpdated || now.split('T')[0]);
+  seed(Array.isArray(raw.grants) ? raw.grants : []);
 }
 
 module.exports = {

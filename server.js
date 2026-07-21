@@ -58,10 +58,19 @@ app.listen(PORT, () => {
   console.log(`Adoption grants dashboard listening on port ${PORT}`);
 });
 
+let fetchGrantsRunning = false;
+
 if (cron.validate(GRANT_FETCH_CRON)) {
   cron.schedule(GRANT_FETCH_CRON, () => {
+    if (fetchGrantsRunning) {
+      console.log('⏭️  Skipping scheduled adoption-grants fetch — previous run still in progress.');
+      return;
+    }
+    fetchGrantsRunning = true;
     console.log('⏰ Running scheduled adoption-grants fetch...');
-    runFetchGrants().catch((err) => console.error('💥 Scheduled grant fetch failed:', err));
+    runFetchGrants()
+      .catch((err) => console.error('💥 Scheduled grant fetch failed:', err))
+      .finally(() => { fetchGrantsRunning = false; });
   });
   console.log(`Grant fetch scheduled: "${GRANT_FETCH_CRON}"`);
 } else {
