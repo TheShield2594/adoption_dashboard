@@ -1,0 +1,12 @@
+services:
+  adoption-dashboard:
+    build: .
+    container_name: adoption-grants-dashboard
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - dashboard-data:/app/data
+
+volumes:
+  dashboard-data:
