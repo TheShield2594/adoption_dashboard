@@ -5,6 +5,12 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    environment:
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-anthropic/claude-3.5-haiku}
+      - SEARXNG_URL=${SEARXNG_URL:-}
+      - GRANT_FETCH_CRON=${GRANT_FETCH_CRON:-0 17 * * 1}
     volumes:
       - dashboard-data:/app/data
 

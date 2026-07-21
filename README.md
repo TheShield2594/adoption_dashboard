@@ -9,13 +9,48 @@ devices and browsers, not just one machine's local storage.
 ## Files
 
 - `public/adoption-grants-dashboard.html` — the app (markup, styles, and client-side logic)
-- `public/adoption-grants-dashboard.json` — the data: grant list, preset ignore-reasons, and metadata
+- `public/adoption-grants-dashboard.json` — one-time seed data (grant list, preset ignore-reasons,
+  metadata); only read on first boot when the database is empty, see below
 - `server.js` — small Express server that serves the app and a JSON API backed by SQLite
+- `db.js` — shared SQLite access (grants, statuses, and seeding)
+- `scripts/fetch-grants.js` — weekly job that discovers new grant programs and posts to Discord
 - `Dockerfile` / `docker-compose.yml` — container build for deployment (e.g. via Portainer)
 
-The HTML fetches the grant list from the JSON file and reads/writes grant
-statuses through the server's API, so it needs the Node server running —
-opening the HTML file directly (`file://`) will not work.
+The HTML fetches the grant list and reads/writes grant statuses through the
+server's API, so it needs the Node server running — opening the HTML file
+directly (`file://`) will not work.
+
+## Weekly grant discovery
+
+`scripts/fetch-grants.js` runs on an in-process schedule (via `node-cron`,
+started by `server.js` — no system cron/root needed in the container):
+
+1. Scrapes a fixed list of known grant-program pages, plus any pages
+   discovered through a SearXNG search (if `SEARXNG_URL` is set).
+2. Sends the scraped text to an OpenRouter model, asking it to extract
+   grants that aren't already in the database.
+3. Inserts genuinely new grants into SQLite.
+4. Posts a summary (new grants found, or "none this week") to a Discord
+   webhook.
+
+Any step with a missing env var is skipped, not fatal — e.g. running with no
+`OPENROUTER_API_KEY` just scrapes and logs, without extraction.
+
+Configure via env vars (copy `.env.example` to `.env` for `docker compose`):
+
+| Variable | Purpose |
+| --- | --- |
+| `DISCORD_WEBHOOK_URL` | Where the weekly summary gets posted |
+| `OPENROUTER_API_KEY` | Auth for the extraction call ([openrouter.ai/keys](https://openrouter.ai/keys)) |
+| `OPENROUTER_MODEL` | Model to use (default `anthropic/claude-3.5-haiku`) |
+| `SEARXNG_URL` | Base URL of a SearXNG instance with JSON output enabled (`search: formats: [html, json]` in its `settings.yml`); leave unset to skip discovery and only scrape the fixed sources |
+| `GRANT_FETCH_CRON` | Cron expression for the schedule (default `0 17 * * 1`, Mondays 17:00 UTC) |
+
+Run it manually any time (e.g. to test): `node scripts/fetch-grants.js --dry-run`
+(dry-run skips DB writes and the Discord post, but still logs what it found).
+
+**Note:** since `.env` isn't committed, never commit real secrets to
+`docker-compose.yml` either — it references `${VAR}` placeholders only.
 
 ## Running it
 
@@ -70,7 +105,11 @@ file location (`./data/statuses.db`).
 
 ## Editing the data
 
-Grant programs live in `public/adoption-grants-dashboard.json`. Each entry supports:
+Grant programs live in the SQLite database (same file as saved statuses),
+populated automatically by the weekly discovery job above. `public/adoption-grants-dashboard.json`
+is only read once, to seed that database the first time it's empty (e.g. a
+fresh volume) — editing it afterward has no effect unless you clear the
+database and let it reseed. Each seed entry supports:
 
 | Field | Description |
 | --- | --- |
@@ -94,6 +133,7 @@ The server exposes a small JSON API used by the front end:
 | Endpoint | Description |
 | --- | --- |
 | `GET /api/health` | Health check — verifies the server can query the database |
+| `GET /api/grants` | Returns the full grant list plus metadata (`lastUpdated`, `presetReasons`, etc.), read from SQLite |
 | `GET /api/statuses` | Returns all saved statuses, keyed by grant name |
 | `PUT /api/statuses/:name` | Upserts a status: `{ "applied": bool, "ignoredReason": string }`. If `applied` is `false` and `ignoredReason` is empty, this deletes the saved status instead of storing an empty row. |
 | `DELETE /api/statuses/:name` | Clears a grant's saved status |
