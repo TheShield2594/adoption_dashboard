@@ -131,7 +131,7 @@ function grantsCount() {
 
 function insertGrant(grant, source = 'auto-discovered') {
   const now = new Date().toISOString();
-  insertGrantStmt.run({
+  return insertGrantStmt.run({
     name: grant.name,
     amount: grant.amount || '',
     amountRaw: Number(grant.amountRaw) || 0,
@@ -144,7 +144,7 @@ function insertGrant(grant, source = 'auto-discovered') {
     source,
     createdAt: now,
     updatedAt: now,
-  });
+  }).changes > 0;
 }
 
 // Expiry ---------------------------------------------------------------------
@@ -212,16 +212,26 @@ function setMeta(key, value) {
 
 // Seeding ------------------------------------------------------------------
 
-function seedFromJsonIfEmpty(seedJsonPath) {
-  if (grantsCount() > 0) return;
-  if (!fs.existsSync(seedJsonPath)) return;
+// Seeds an empty database from the JSON file, and on later boots tops up any
+// grants present in the file but missing from the database (INSERT OR IGNORE
+// leaves existing rows and saved statuses untouched). Returns how many rows
+// were inserted so callers can log it.
+function seedFromJson(seedJsonPath) {
+  if (!fs.existsSync(seedJsonPath)) return { inserted: 0 };
 
   const raw = JSON.parse(fs.readFileSync(seedJsonPath, 'utf-8'));
   const now = new Date().toISOString();
+  const wasEmpty = grantsCount() === 0;
+  const before = grantsCount();
 
+  const startOfToday = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
   const seed = db.transaction((grantList) => {
     for (const g of grantList) {
       if (!g || !g.name) continue;
+      // Don't resurrect grants the expiry cleanup already removed — an
+      // expired deadline in the file means it would be deleted again anyway.
+      const deadlineDate = parseDeadlineDate(g.deadline);
+      if (deadlineDate && deadlineDate < startOfToday) continue;
       insertGrantStmt.run({
         name: g.name,
         amount: g.amount || '',
@@ -237,13 +247,19 @@ function seedFromJsonIfEmpty(seedJsonPath) {
         updatedAt: raw.lastUpdated || now,
       });
     }
-    setMeta('version', String(raw.version || 2));
-    setMeta('adoptionType', raw.adoptionType || '');
-    setMeta('consultant', raw.consultant || '');
-    setMeta('presetReasons', JSON.stringify(raw.presetReasons || []));
-    setMeta('lastUpdated', raw.lastUpdated || now.split('T')[0]);
+    if (wasEmpty) {
+      setMeta('version', String(raw.version || 2));
+      setMeta('adoptionType', raw.adoptionType || '');
+      setMeta('consultant', raw.consultant || '');
+      setMeta('presetReasons', JSON.stringify(raw.presetReasons || []));
+      setMeta('lastUpdated', raw.lastUpdated || now.split('T')[0]);
+    }
   });
   seed(Array.isArray(raw.grants) ? raw.grants : []);
+
+  const inserted = grantsCount() - before;
+  if (!wasEmpty && inserted > 0) setMeta('lastUpdated', now.split('T')[0]);
+  return { inserted };
 }
 
 module.exports = {
@@ -259,5 +275,5 @@ module.exports = {
   removeExpiredGrants,
   getMeta,
   setMeta,
-  seedFromJsonIfEmpty,
+  seedFromJson,
 };
