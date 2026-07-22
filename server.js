@@ -8,7 +8,10 @@ const PORT = process.env.PORT || 3000;
 const SEED_JSON_PATH = path.join(__dirname, 'public', 'adoption-grants-dashboard.json');
 const GRANT_FETCH_CRON = process.env.GRANT_FETCH_CRON || '0 17 * * 1';
 
-db.seedFromJsonIfEmpty(SEED_JSON_PATH);
+const seeded = db.seedFromJson(SEED_JSON_PATH);
+if (seeded.inserted) {
+  console.log(`🌱 Seeded ${seeded.inserted} grant(s) from ${path.basename(SEED_JSON_PATH)}`);
+}
 
 const removedAtBoot = db.removeExpiredGrants();
 if (removedAtBoot.length) {
@@ -16,7 +19,7 @@ if (removedAtBoot.length) {
 }
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: 'adoption-grants-dashboard.html' }));
 
 app.get('/api/health', (req, res) => {
@@ -39,12 +42,66 @@ app.get('/api/grants', (req, res) => {
 
   res.json({
     lastUpdated: db.getMeta('lastUpdated', ''),
+    lastChecked: db.getMeta('lastChecked', ''),
     version: Number(db.getMeta('version', '2')),
     adoptionType: db.getMeta('adoptionType', ''),
     consultant: db.getMeta('consultant', ''),
     presetReasons,
     grants,
   });
+});
+
+// Bulk import for external tools (e.g. Hermes backfills). Body is either a
+// bare array of grants or { grants: [...] }. Existing grants are left
+// untouched (matched by name); only new names are inserted. If IMPORT_TOKEN
+// is set in the environment, requests must send it as a Bearer token.
+app.post('/api/grants/import', (req, res) => {
+  const token = process.env.IMPORT_TOKEN;
+  if (token && req.get('authorization') !== `Bearer ${token}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const grants = Array.isArray(req.body) ? req.body
+    : (req.body && Array.isArray(req.body.grants)) ? req.body.grants
+    : null;
+  if (!grants) {
+    return res.status(400).json({ error: 'Body must be an array of grants or { grants: [...] }' });
+  }
+
+  const hasControlChars = (s) => /[\x00-\x1f\x7f]/.test(s);
+  const isValidWebsite = (s) => {
+    if (hasControlChars(s)) return false;
+    try {
+      const u = new URL(s);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
+  let inserted = 0;
+  const skipped = [];
+  for (const g of grants) {
+    if (!g || typeof g.name !== 'string' || !g.name.trim() ||
+        typeof g.website !== 'string' || !g.website.trim()) {
+      skipped.push({ name: (g && g.name) || '(missing name)', reason: 'invalid — name and website are required' });
+      continue;
+    }
+    if (hasControlChars(g.name)) {
+      skipped.push({ name: g.name.replace(/[\x00-\x1f\x7f]/g, ''), reason: 'invalid — name contains control characters' });
+      continue;
+    }
+    if (!isValidWebsite(g.website.trim())) {
+      skipped.push({ name: g.name, reason: 'invalid — website must be a valid http(s) URL' });
+      continue;
+    }
+    if (db.insertGrant(g, 'import')) inserted++;
+    else skipped.push({ name: g.name, reason: 'already exists' });
+  }
+
+  if (inserted > 0) db.setMeta('lastUpdated', new Date().toISOString().split('T')[0]);
+  console.log(`📥 Import: ${inserted} inserted, ${skipped.length} skipped`);
+  res.json({ inserted, skipped, total: db.grantsCount() });
 });
 
 app.get('/api/statuses', (req, res) => {

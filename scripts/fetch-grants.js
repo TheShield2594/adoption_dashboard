@@ -287,8 +287,11 @@ async function main() {
   }
 
   let candidates = [];
+  let checkSucceeded = false;
   try {
     candidates = await extractGrantsWithLLM(pages, [...existingNames]);
+    // Only count as a real check when extraction actually ran (key set, pages scraped).
+    checkSucceeded = Boolean(OPENROUTER_API_KEY) && pages.length > 0;
   } catch (err) {
     console.error('💥 LLM extraction failed:', err.message);
   }
@@ -307,7 +310,9 @@ async function main() {
 
   if (!isDryRun) {
     for (const g of trulyNew) db.insertGrant(g);
-    if (trulyNew.length > 0) db.setMeta('lastUpdated', new Date().toISOString().split('T')[0]);
+    const today = new Date().toISOString().split('T')[0];
+    if (trulyNew.length > 0) db.setMeta('lastUpdated', today);
+    if (checkSucceeded) db.setMeta('lastChecked', today);
   }
 
   const message = buildDiscordMessage({ weekLabel, pageCount: pages.length, newGrants: trulyNew, isDryRun });

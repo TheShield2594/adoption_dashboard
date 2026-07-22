@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-06-15",
+  "lastUpdated": "2026-07-22",
   "version": 2,
   "adoptionType": "Domestic",
   "consultant": "Christian Adoption Consultants",
@@ -20,7 +20,7 @@
       "amountRaw": 15000,
       "type": "grant",
       "focus": "Domestic / International / Relative",
-      "deadline": "Rolling \u2014 no deadline",
+      "deadline": "Rolling — no deadline",
       "website": "https://giftofadoption.org/apply-for-a-grant/",
       "details": "Grants awarded to qualified applicants for domestic, international, and relative adoptions. One of the largest adoption grant programs available. Requires completed home study.",
       "sentWeeks": [
@@ -32,7 +32,7 @@
     },
     {
       "name": "Helpusadopt.org",
-      "amount": "$1,000 \u2013 $30,000",
+      "amount": "$1,000 – $30,000",
       "amountRaw": 30000,
       "type": "grant",
       "focus": "All adoptions",
@@ -51,7 +51,7 @@
       "amountRaw": 7000,
       "type": "grant",
       "focus": "Domestic infant/child only",
-      "deadline": "Year-round \u2014 awarded weekly",
+      "deadline": "Year-round — awarded weekly",
       "website": "https://www.achildwaits.org/domestic-grant-program",
       "details": "Specifically for domestic infant/child adoption. Grants awarded weekly; can apply after completing homestudy. Committed to reducing financial barriers to adoption.",
       "sentWeeks": [
@@ -63,7 +63,7 @@
     },
     {
       "name": "Lifesong for Orphans",
-      "amount": "$6,000 \u2013 $10,000 (based on need)",
+      "amount": "$6,000 – $10,000 (based on need)",
       "amountRaw": 10000,
       "type": "grant",
       "focus": "Domestic / International",
@@ -199,8 +199,8 @@
       "ignoredReason": ""
     },
     {
-      "name": "Adopt America Network \u2014 Military Grant",
-      "amount": "$1,000 \u2013 $2,500",
+      "name": "Adopt America Network — Military Grant",
+      "amount": "$1,000 – $2,500",
       "amountRaw": 2500,
       "type": "grant",
       "focus": "Active-duty military",
@@ -249,7 +249,7 @@
       "amountRaw": 17670,
       "type": "employer_benefit",
       "focus": "Employees with employer programs",
-      "deadline": "Ongoing \u2014 check with HR",
+      "deadline": "Ongoing — check with HR",
       "website": "https://www.irs.gov/newsroom/employer-adoption-benefit-programs",
       "details": "Up to $17,670 can be excluded from income as tax-free employer reimbursement. Many major employers cover it. Some employers (e.g., US Military) provide additional financial assistance and leave. Check with HR about FSA-eligible adoption expenses.",
       "sentWeeks": [
@@ -260,13 +260,13 @@
     },
     {
       "name": "Title IV-E Adoption Assistance",
-      "amount": "Federal matching funds (50\u201383%)",
+      "amount": "Federal matching funds (50–83%)",
       "amountRaw": null,
       "type": "federal_assistance",
       "focus": "Special needs from foster care",
-      "deadline": "Ongoing \u2014 negotiated through agency",
+      "deadline": "Ongoing — negotiated through agency",
       "website": "https://www.acf.gov/cb/grant-funding/title-iv-e-adoption-assistance",
-      "details": "Federal matching funds (50\u201383% depending on state) for adoption assistance payments. For families adopting children with special needs from foster care. Negotiated with your agency/state.",
+      "details": "Federal matching funds (50–83% depending on state) for adoption assistance payments. For families adopting children with special needs from foster care. Negotiated with your agency/state.",
       "sentWeeks": [
         "June 1"
       ],
@@ -275,13 +275,13 @@
     },
     {
       "name": "Show Hope Adoption Aid Grant",
-      "amount": "$8,000 \u2013 $12,000",
+      "amount": "$8,000 – $12,000",
       "amountRaw": 12000,
       "type": "grant",
       "focus": "Domestic / International",
       "deadline": "June 30, 2026",
       "website": "https://showhope.org/",
-      "details": "Show Hope is currently accepting applications for their Adoption Aid grant. These grants help families pursuing domestic or international adoption. Their current application window is open through June 30th \u2014 don't miss this one!",
+      "details": "Show Hope is currently accepting applications for their Adoption Aid grant. These grants help families pursuing domestic or international adoption. Their current application window is open through June 30th — don't miss this one!",
       "sentWeeks": [
         "June 15"
       ],
@@ -289,14 +289,14 @@
       "ignoredReason": ""
     },
     {
-      "name": "Here I Am Orphan Ministries \u2014 Adoption Grant & Loan Program",
+      "name": "Here I Am Orphan Ministries — Adoption Grant & Loan Program",
       "amount": "Varies (Grant + Loan program for Christian families)",
       "amountRaw": null,
       "type": "matching_grant",
       "focus": "Christian families adopting waiting children",
       "deadline": "June 23, 2026",
       "website": "https://orphanministries.com/adoption-grant-and-loan-program/",
-      "details": "Specifically for Christian families adopting waiting children \u2014 older kids, special needs, or sibling groups. Out-of-state families welcome. Applications due soon!",
+      "details": "Specifically for Christian families adopting waiting children — older kids, special needs, or sibling groups. Out-of-state families welcome. Applications due soon!",
       "sentWeeks": [
         "June 15"
       ],
@@ -309,7 +309,7 @@
       "amountRaw": 30000,
       "type": "grant",
       "focus": "All adoptions",
-      "deadline": "Rolling \u2014 no deadline (six award cycles per year)",
+      "deadline": "Rolling — no deadline (six award cycles per year)",
       "website": "https://www.helpusadopt.org/",
       "details": "One of the most generous adoption grants available. Six award cycles per year. Open to all regardless of ethnicity, gender, marital status, religion, or sexual orientation. They're awarding $2.7 million in grants in 2025 alone!",
       "sentWeeks": [
@@ -319,12 +319,12 @@
       "ignoredReason": ""
     },
     {
-      "name": "A Child Waits Foundation \u2014 Domestic Adoption Grant",
+      "name": "A Child Waits Foundation — Domestic Adoption Grant",
       "amount": "Up to $7,000",
       "amountRaw": 7000,
       "type": "grant",
       "focus": "Domestic infant/child only",
-      "deadline": "Rolling \u2014 applications accepted year-round",
+      "deadline": "Rolling — applications accepted year-round",
       "website": "https://www.achildwaits.org/domestic-grant-program",
       "details": "Specifically for domestic adoption! Grants are awarded weekly. Apply any time after you have a completed homestudy.",
       "sentWeeks": [
@@ -334,14 +334,14 @@
       "ignoredReason": ""
     },
     {
-      "name": "ABBA Fund \u2014 Christian Family Adoption Grant",
+      "name": "ABBA Fund — Christian Family Adoption Grant",
       "amount": "Varies (matching grant program)",
       "amountRaw": null,
       "type": "grant",
       "focus": "Christian families",
-      "deadline": "No deadline \u2014 apply anytime after home study",
+      "deadline": "No deadline — apply anytime after home study",
       "website": "https://abbafund.org/application/",
-      "details": "Christian-focused grant program. Has provided over $9 million in adoption assistance. No application deadline \u2014 apply anytime after completing your home study and accepting a match.",
+      "details": "Christian-focused grant program. Has provided over $9 million in adoption assistance. No application deadline — apply anytime after completing your home study and accepting a match.",
       "sentWeeks": [
         "June 15"
       ],
@@ -349,16 +349,421 @@
       "ignoredReason": ""
     },
     {
-      "name": "Lifesong for Orphans \u2014 Matching Grants",
-      "amount": "$1,000 \u2013 $4,000 (dollar-for-dollar matching)",
+      "name": "Lifesong for Orphans — Matching Grants",
+      "amount": "$1,000 – $4,000 (dollar-for-dollar matching)",
       "amountRaw": 4000,
       "type": "matching_grant",
       "focus": "Domestic / International",
-      "deadline": "Rolling \u2014 as donations come in for your family",
+      "deadline": "Rolling — as donations come in for your family",
       "website": "https://lifesong.org/adoption/",
       "details": "Matching grant program that mobilizes the Body of Christ to support your adoption journey. Raises funds through their network of supporters.",
       "sentWeeks": [
         "June 15"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "America's Christian Credit Union",
+      "amount": "$500 (up to 4x/year)",
+      "amountRaw": 500,
+      "type": "grant",
+      "focus": "Christian families, must join credit union",
+      "deadline": "Ongoing",
+      "website": "https://www.americaschristiancu.com/personal/adoption-loans/",
+      "details": "Grant/loan program for Christian families pursuing adoption. Must be a credit union member. Up to $500 per grant, available up to 4 times per year.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Angels in Disguise",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Ongoing",
+      "website": "https://angelsindisguise.net/adoptions/",
+      "details": "Adoption grant program for families pursuing adoption. Amount varies based on need and availability.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Children Need Families",
+      "amount": "$5,000 – $25,000",
+      "amountRaw": 25000,
+      "type": "grant",
+      "focus": "Domestic adoption",
+      "deadline": "Ongoing",
+      "website": "https://children-need-families.org/",
+      "details": "Adoption grant program providing assistance to families. Generous grant range of $5k to $25k for qualifying families.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Chosen for Life Ministries",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "Christian families",
+      "deadline": "Ongoing",
+      "website": "https://chosenforlifeministries.org/grants",
+      "details": "Faith-based adoption grant program for Christian families pursuing adoption.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Connected Hearts Ministry",
+      "amount": "Up to $1,000",
+      "amountRaw": 1000,
+      "type": "matching_grant",
+      "focus": "Christian families",
+      "deadline": "Ongoing",
+      "website": "https://www.connectedheartsministry.org/adoption-funding",
+      "details": "Matching grant program for Christian families. Provides up to $1,000 in matching funds for adoption expenses.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Dream 4 Adoption",
+      "amount": "$1,500",
+      "amountRaw": 1500,
+      "type": "grant",
+      "focus": "Home study grants",
+      "deadline": "Ongoing",
+      "website": "https://dream4adoption.org/",
+      "details": "Provides home study grants of $1,500 to help families cover the cost of their home study, a key step in the adoption process.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Families Outreach Inc.",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Ongoing",
+      "website": "https://familiesoutreach.org/",
+      "details": "Adoption grant program providing financial assistance to families pursuing adoption.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "God's Grace Adoption Ministry",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "Christian families",
+      "deadline": "Ongoing",
+      "website": "https://ggam.org/",
+      "details": "Faith-based adoption ministry providing grants to Christian families pursuing adoption.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Golden Dawn Adoption Assistance",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Ongoing",
+      "website": "http://www.goldendawnaa.org/",
+      "details": "Adoption assistance program providing financial support to families pursuing adoption.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Katelyn's Fund",
+      "amount": "Up to $3,000",
+      "amountRaw": 3000,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Ongoing",
+      "website": "https://katelynsfund.org/adoption-grants/",
+      "details": "Adoption grants up to $3,000 from Katelyn's Fund Orphan Ministry (Sioux Center, IA) for Christian families.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Laurel's Message — Hannah's Halo",
+      "amount": "Up to $5,000",
+      "amountRaw": 5000,
+      "type": "grant",
+      "focus": "Post-placement support",
+      "deadline": "Ongoing",
+      "website": "https://laurelsmessage.org/what-we-do/funding-programs/hannahs-halo/",
+      "details": "Post-placement adoption grant providing support to families after placement. Part of the Laurel's Message program.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Laurel's Message — Lucy's Love",
+      "amount": "Up to $15,000",
+      "amountRaw": 15000,
+      "type": "grant",
+      "focus": "Medical needs adoptions",
+      "deadline": "Ongoing",
+      "website": "https://laurelsmessage.org/what-we-do/funding-programs/lucys-love/",
+      "details": "Medical needs adoption grant providing up to $15,000 for families adopting children with medical needs. Part of the Laurel's Message program.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Lauryn's Promise",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "Christian families",
+      "deadline": "Ongoing",
+      "website": "https://www.laurynspromise.com/",
+      "details": "Faith-based adoption grant for Christian families pursuing adoption. Provides financial assistance to help cover adoption costs.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Lifetime Adoption Foundation",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Ongoing",
+      "website": "https://lifetimeadoption.com/adoptivefamilies-financial-assistance-for-adoption/",
+      "details": "Adoption grant program through Lifetime Adoption, providing financial assistance to families pursuing adoption.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Mighty Families By Adoption",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "May & November (twice yearly)",
+      "website": "http://www.mightyfamiliesbyadoption.com/",
+      "details": "Adoption grant program with two application cycles per year (May and November). Provides varying amounts based on need.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Military Adoption Reimbursement (DoD)",
+      "amount": "Up to $2,000 per child",
+      "amountRaw": 2000,
+      "type": "federal_assistance",
+      "focus": "Active duty military families",
+      "deadline": "Ongoing",
+      "website": "https://www.militaryonesource.mil/",
+      "details": "Department of Defense program that reimburses active duty military families up to $2,000 per child for qualifying adoption expenses. Must be submitted within 2 years of placement.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Milk Glass Candle Co.",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "July 1 – September 1",
+      "website": "https://milkglasscandle.com/pages/adoption-grant",
+      "details": "Adoption grant program with a specific application window from July 1 to September 1. Amount varies based on seasonal fundraising.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Muskogee Church of Christ",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "Christian families",
+      "deadline": "Ongoing",
+      "website": "https://mccweb.org/ministries/adoption-fund/",
+      "details": "Church-based adoption grant program providing financial assistance to Christian families pursuing adoption.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Open Hearts for Orphans",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "Special needs, Down syndrome, CHD",
+      "deadline": "Ongoing",
+      "website": "https://openheartsfororphans.org/adoption-grants",
+      "details": "\"Say Yes\" grant program for families adopting children with special needs including Down syndrome and congenital heart defects.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Pathways for Little Feet",
+      "amount": "Up to $8,000",
+      "amountRaw": 8000,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Ongoing",
+      "website": "https://pathwaysforlittlefeet.org/",
+      "details": "Interest-free adoption loans (up to ~$10,000) rather than outright grants; repayments fund future families.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Sparrow Fund",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Ongoing",
+      "website": "https://sparrow-fund.org/how-we-serve/grants/grant-info",
+      "details": "Adoption grant program providing financial assistance to families. Focuses on reducing financial barriers to adoption.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "The Anna Cheri Foundation",
+      "amount": "Varies",
+      "amountRaw": null,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Ongoing",
+      "website": "https://www.inspiringorphancare.org/",
+      "details": "Adoption grant foundation providing financial assistance to families pursuing adoption.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Kidsave CMOMA Grant Program",
+      "amount": "Up to $15,000",
+      "amountRaw": 15000,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Ongoing",
+      "website": "https://www.kidsave.org/kidsave-cmoma/",
+      "details": "Successor to the CMomA (Childless Mothers Adopt) gifting program, now run by Kidsave. Grants for adoptive families.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "The Tinina Q. Cade Foundation",
+      "amount": "Up to $10,000",
+      "amountRaw": 10000,
+      "type": "grant",
+      "focus": "Family building (adoption & fertility)",
+      "deadline": "Ongoing",
+      "website": "https://cadefoundation.org/",
+      "details": "Family building grant providing up to $10,000. Supports both adoption and fertility treatment for qualifying families.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "WAT! Black Family Adoption Assistance",
+      "amount": "Up to $5,000",
+      "amountRaw": 5000,
+      "type": "grant",
+      "focus": "Black/African American families",
+      "deadline": "Ongoing",
+      "website": "https://watadoptions.org/",
+      "details": "Adoption assistance program specifically for Black and African American families, providing up to $5,000 to help cover adoption costs.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "We Care for Orphans Adoption Fund",
+      "amount": "$2,000 – $5,000",
+      "amountRaw": 5000,
+      "type": "grant",
+      "focus": "All adoptions",
+      "deadline": "Ongoing",
+      "website": "https://www.wecarefororphansfund.org/adoption",
+      "details": "Loan and matching grant program providing $2,000 to $5,000 for families pursuing adoption. Funds help cover adoption-related expenses.",
+      "sentWeeks": [
+        "July 13"
+      ],
+      "applied": false,
+      "ignoredReason": ""
+    },
+    {
+      "name": "Nightlight Christian Adoptions Foundation Grant",
+      "amount": "$500",
+      "amountRaw": 500,
+      "type": "grant",
+      "focus": "Families adopting through Nightlight",
+      "deadline": "Ongoing",
+      "website": "https://nightlight.org/nightlight-christian-adoptions-foundation-grant/",
+      "details": "Small grant program for families adopting through Nightlight Christian Adoptions. Must meet with a Family Resource Specialist and create an AdoptionBridge crowdfunding page.",
+      "sentWeeks": [
+        "July 20"
       ],
       "applied": false,
       "ignoredReason": ""

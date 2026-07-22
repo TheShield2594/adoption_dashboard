@@ -165,6 +165,7 @@ The server exposes a small JSON API used by the front end:
 | --- | --- |
 | `GET /api/health` | Health check — verifies the server can query the database |
 | `GET /api/grants` | Returns the full grant list plus metadata (`lastUpdated`, `presetReasons`, etc.), read from SQLite. Grants whose deadline date has passed are removed before the list is returned. |
+| `POST /api/grants/import` | Bulk-imports grants from an external tool. Body is a bare array or `{ "grants": [...] }`; each grant needs at least `name` and `website`. Existing grants (matched by name) are skipped, never overwritten. If `IMPORT_TOKEN` is set, requests must send `Authorization: Bearer <token>`. Returns `{ inserted, skipped, total }`. |
 | `GET /api/statuses` | Returns all saved statuses, keyed by grant name |
 | `PUT /api/statuses/:name` | Upserts a status: `{ "applied": bool, "ignoredReason": string, "rejected": bool }`. If all three are false/empty, this deletes the saved status instead of storing an empty row. |
 | `DELETE /api/statuses/:name` | Clears a grant's saved status |
