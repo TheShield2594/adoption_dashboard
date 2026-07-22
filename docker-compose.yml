@@ -1,6 +1,6 @@
 services:
   adoption-dashboard:
-    build: .
+    image: ghcr.io/theshield2594/adoption_dashboard:latest
     container_name: adoption-grants-dashboard
     restart: unless-stopped
     ports:

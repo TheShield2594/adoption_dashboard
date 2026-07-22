@@ -57,19 +57,42 @@ Run it manually any time (e.g. to test): `node scripts/fetch-grants.js --dry-run
 ### With Docker (recommended, e.g. via Portainer)
 
 ```bash
-docker compose up -d --build
+docker compose pull && docker compose up -d
 ```
 
-This builds the image, starts the server on port `3000`, and persists the
-SQLite database in the `dashboard-data` named Docker volume so status data
-survives container recreation/updates. A named volume (rather than a host
-bind mount) is used so the container's non-root `node` user always has
-write access, regardless of host directory permissions.
+This pulls the prebuilt image `ghcr.io/theshield2594/adoption_dashboard:latest`
+(published automatically by the `docker-publish` GitHub Action on every push
+to `main`), starts the server on port `3000`, and persists the SQLite
+database in the `dashboard-data` named Docker volume so status data survives
+container recreation/updates. A named volume (rather than a host bind mount)
+is used so the container's non-root `node` user always has write access,
+regardless of host directory permissions.
 
-In Portainer: create a stack from this repo's `docker-compose.yml`, or point
-a Portainer "Git repository" stack at this repo. Put your existing Nginx
-Proxy Manager / Cloudflare setup in front of port `3000` like any other
-container.
+The explicit `docker compose pull` matters when updating: `:latest` is a
+moving tag, and `docker compose up` alone reuses whatever image is already
+on the host.
+
+To build the image locally instead (e.g. when testing changes):
+
+```bash
+docker build -t ghcr.io/theshield2594/adoption_dashboard:latest .
+docker compose up -d --pull never
+```
+
+(`--pull never` keeps Compose from replacing your local build with the
+registry image.)
+
+In Portainer: create a stack by pasting `docker-compose.yml` into the web
+editor, or point a Portainer "Git repository" stack at this repo — either
+way the stack pulls the image from GHCR, so updating is just
+"Re-pull image and redeploy" on the stack.
+Put your existing Nginx Proxy Manager / Cloudflare setup in front of port
+`3000` like any other container.
+
+> **Note:** the GHCR package must be public for Portainer to pull it without
+> credentials. After the first image push, go to the package's settings on
+> GitHub (Packages → adoption_dashboard → Package settings) and set
+> visibility to **Public**, or add GHCR registry credentials in Portainer.
 
 The container also declares a `HEALTHCHECK` (via `GET /api/health`), so
 Portainer/Docker report the container as unhealthy if the server or its
