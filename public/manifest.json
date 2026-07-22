@@ -1,0 +1,15 @@
+{
+  "name": "Adoption Grants Dashboard",
+  "short_name": "Grants",
+  "description": "Track adoption grants, tax credits, and employer benefits with per-program status.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F6F0E6",
+  "theme_color": "#F6F0E6",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
