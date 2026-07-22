@@ -129,10 +129,14 @@ file location (`./data/statuses.db`).
   startup and on each grant-list fetch. Vague deadlines ("Rolling", "Check
   website", "Quarterly cycles") never expire.
 - **Export** — download your saved statuses as a JSON file.
-- **Summary stats** — total programs, max grant potential, no-deadline count,
-  applied/rejected/ignored counts, the total potential amount across grants you
-  have applied for (rejected applications excluded), and combined tax + employer
-  benefit potential.
+- **Summary stats** — programs tracked, max grant potential, the total
+  potential amount across grants you have applied for (rejected applications
+  excluded), no-deadline count, and combined tax + employer benefit potential,
+  plus a review progress bar ("N of M reviewed"). Applied/rejected/ignored
+  counts appear on the corresponding filter buttons.
+- **Sorted by what needs attention** — unreviewed programs come first (most
+  urgent explicit deadline, then largest amount), followed by applied, ignored,
+  and rejected programs.
 
 ## Editing the data
 
