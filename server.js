@@ -68,12 +68,31 @@ app.post('/api/grants/import', (req, res) => {
     return res.status(400).json({ error: 'Body must be an array of grants or { grants: [...] }' });
   }
 
+  const hasControlChars = (s) => /[\x00-\x1f\x7f]/.test(s);
+  const isValidWebsite = (s) => {
+    if (hasControlChars(s)) return false;
+    try {
+      const u = new URL(s);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
   let inserted = 0;
   const skipped = [];
   for (const g of grants) {
     if (!g || typeof g.name !== 'string' || !g.name.trim() ||
         typeof g.website !== 'string' || !g.website.trim()) {
       skipped.push({ name: (g && g.name) || '(missing name)', reason: 'invalid — name and website are required' });
+      continue;
+    }
+    if (hasControlChars(g.name)) {
+      skipped.push({ name: g.name.replace(/[\x00-\x1f\x7f]/g, ''), reason: 'invalid — name contains control characters' });
+      continue;
+    }
+    if (!isValidWebsite(g.website.trim())) {
+      skipped.push({ name: g.name, reason: 'invalid — website must be a valid http(s) URL' });
       continue;
     }
     if (db.insertGrant(g, 'import')) inserted++;

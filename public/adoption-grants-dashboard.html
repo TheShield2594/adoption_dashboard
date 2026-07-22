@@ -601,12 +601,23 @@
     }
 
     function deadlineClass(deadline) {
-      if (deadline.toLowerCase().includes('rolling') || deadline.toLowerCase().includes('year-round')) return 'rolling';
-      return 'deadline';
+      return isRolling(deadline) ? 'rolling' : 'deadline';
     }
 
     function isRolling(deadline) {
-      return deadline.toLowerCase().includes('rolling') || deadline.toLowerCase().includes('year-round');
+      const d = (deadline || '').toLowerCase();
+      return d.includes('rolling') || d.includes('year-round');
+    }
+
+    // Grant fields can arrive via the import API, so treat them as untrusted
+    // when building innerHTML.
+    function esc(v) {
+      return String(v ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
     function buildCard(grant, index) {
@@ -625,54 +636,56 @@
       else if (applied) cardClass += ' applied';
       else if (ignored) cardClass += ' ignored';
 
-      let filterAttr = rolling ? `data-filter="rolling ${grant.type}` : `data-filter="${grant.type}`;
+      let filterAttr = rolling ? `data-filter="rolling ${esc(grant.type)}` : `data-filter="${esc(grant.type)}`;
       if (rejected) filterAttr += ' rejected';
       else if (applied) filterAttr += ' applied';
       if (ignored) filterAttr += ' ignored';
       filterAttr += '"';
 
       const ignoredBadgeHtml = ignored
-        ? `<span class="ignored-badge">✗ Ignored${ignoredReason && ignoredReason !== 'custom' ? ': ' + ignoredReason : ''}</span>`
+        ? `<span class="ignored-badge">✗ Ignored${ignoredReason && ignoredReason !== 'custom' ? ': ' + esc(ignoredReason) : ''}</span>`
         : '';
 
-      const ignoreReasonOptions = PRESET_REASONS.map(r => `<option value="${r}">${r}</option>`).join('') +
+      const ignoreReasonOptions = PRESET_REASONS.map(r => `<option value="${esc(r)}">${esc(r)}</option>`).join('') +
         `<option value="custom">Other (type reason)…</option>`;
 
+      const name = esc(grant.name);
+      const website = /^https?:\/\//i.test(grant.website || '') ? esc(grant.website) : '';
       return `
         <div class="${cardClass}" ${filterAttr} data-index="${index}">
           <div class="grant-header">
-            <div class="grant-name">${grant.name}</div>
+            <div class="grant-name">${name}</div>
             <div class="grant-right">
-              <div class="grant-amount ${ac}">${grant.amount}</div>
+              <div class="grant-amount ${ac}">${esc(grant.amount)}</div>
               ${applied ? `<span class="applied-badge">✓ Applied</span>` : ''}
               ${rejected ? `<span class="rejected-badge">✗ Rejected</span>` : ''}
               ${ignoredBadgeHtml}
             </div>
           </div>
           <div class="grant-meta">
-            <span class="meta-tag focus">${grant.focus}</span>
-            <span class="meta-tag type">${grant.type.replace('_', ' ')}</span>
-            <span class="meta-tag ${dc}">${rolling ? '✓ ' : ''}${grant.deadline}</span>
+            <span class="meta-tag focus">${esc(grant.focus)}</span>
+            <span class="meta-tag type">${esc(grant.type.replace('_', ' '))}</span>
+            <span class="meta-tag ${dc}">${rolling ? '✓ ' : ''}${esc(grant.deadline)}</span>
           </div>
-          <div class="grant-details">${grant.details}</div>
+          <div class="grant-details">${esc(grant.details)}</div>
           <div class="grant-footer">
             <div class="grant-footer-left">
-              <span class="sent-weeks">Sent: ${grant.sentWeeks.join(', ')}</span>
+              <span class="sent-weeks">Sent: ${esc(grant.sentWeeks.join(', '))}</span>
               <div class="status-controls">
-                <button class="status-btn applied-btn" data-action="applied" data-grant="${grant.name}" aria-label="Mark ${grant.name} as applied">✓ Applied</button>
-                <button class="status-btn reject-btn" data-action="rejected" data-grant="${grant.name}" aria-label="Mark ${grant.name} as rejected">✗ Rejected</button>
-                <button class="status-btn ignore-btn" data-action="ignore" data-grant="${grant.name}" aria-label="Ignore ${grant.name}">✗ Ignore</button>
-                <button class="status-btn clear-btn" data-action="clear" data-grant="${grant.name}" aria-label="Clear status for ${grant.name}" title="Clear status">✕ Clear</button>
+                <button class="status-btn applied-btn" data-action="applied" data-grant="${name}" aria-label="Mark ${name} as applied">✓ Applied</button>
+                <button class="status-btn reject-btn" data-action="rejected" data-grant="${name}" aria-label="Mark ${name} as rejected">✗ Rejected</button>
+                <button class="status-btn ignore-btn" data-action="ignore" data-grant="${name}" aria-label="Ignore ${name}">✗ Ignore</button>
+                <button class="status-btn clear-btn" data-action="clear" data-grant="${name}" aria-label="Clear status for ${name}" title="Clear status">✕ Clear</button>
                 <div class="ignore-reason-wrap">
-                  <select data-grant="${grant.name}" class="reason-preset">
+                  <select data-grant="${name}" class="reason-preset">
                     <option value="">Select reason…</option>
                     ${ignoreReasonOptions}
                   </select>
-                  <input type="text" class="reason-custom" data-grant="${grant.name}" placeholder="Other reason…" style="display:none">
+                  <input type="text" class="reason-custom" data-grant="${name}" placeholder="Other reason…" style="display:none">
                 </div>
               </div>
             </div>
-            ${grant.website ? `<a href="${grant.website}" target="_blank" rel="noopener noreferrer" class="apply-btn" aria-label="Open application for ${grant.name}">Apply →</a>` : ''}
+            ${website ? `<a href="${website}" target="_blank" rel="noopener noreferrer" class="apply-btn" aria-label="Open application for ${name}">Apply →</a>` : ''}
           </div>
         </div>
       `;
@@ -890,7 +903,7 @@
           PRESET_REASONS = data.presetReasons;
         }
 
-        grants = data.grants.filter(g => g && g.name && g.type && g.deadline);
+        grants = data.grants.filter(g => g && g.name && g.type);
 
         const dateParts = [];
         if (data.lastUpdated) dateParts.push('Updated ' + data.lastUpdated);
