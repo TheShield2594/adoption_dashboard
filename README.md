@@ -57,19 +57,34 @@ Run it manually any time (e.g. to test): `node scripts/fetch-grants.js --dry-run
 ### With Docker (recommended, e.g. via Portainer)
 
 ```bash
-docker compose up -d --build
+docker compose up -d
 ```
 
-This builds the image, starts the server on port `3000`, and persists the
-SQLite database in the `dashboard-data` named Docker volume so status data
-survives container recreation/updates. A named volume (rather than a host
-bind mount) is used so the container's non-root `node` user always has
-write access, regardless of host directory permissions.
+This pulls the prebuilt image `ghcr.io/theshield2594/adoption_dashboard:latest`
+(published automatically by the `docker-publish` GitHub Action on every push
+to `main`), starts the server on port `3000`, and persists the SQLite
+database in the `dashboard-data` named Docker volume so status data survives
+container recreation/updates. A named volume (rather than a host bind mount)
+is used so the container's non-root `node` user always has write access,
+regardless of host directory permissions.
 
-In Portainer: create a stack from this repo's `docker-compose.yml`, or point
-a Portainer "Git repository" stack at this repo. Put your existing Nginx
-Proxy Manager / Cloudflare setup in front of port `3000` like any other
-container.
+To build the image locally instead (e.g. when testing changes):
+
+```bash
+docker build -t ghcr.io/theshield2594/adoption_dashboard:latest .
+docker compose up -d
+```
+
+In Portainer: create a stack by pasting `docker-compose.yml` into the web
+editor, or point a Portainer "Git repository" stack at this repo — either
+way the stack pulls the image from GHCR, so updating is just re-pulling.
+Put your existing Nginx Proxy Manager / Cloudflare setup in front of port
+`3000` like any other container.
+
+> **Note:** the GHCR package must be public for Portainer to pull it without
+> credentials. After the first image push, go to the package's settings on
+> GitHub (Packages → adoption_dashboard → Package settings) and set
+> visibility to **Public**, or add GHCR registry credentials in Portainer.
 
 The container also declares a `HEALTHCHECK` (via `GET /api/health`), so
 Portainer/Docker report the container as unhealthy if the server or its
