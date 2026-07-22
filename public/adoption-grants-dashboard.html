@@ -672,7 +672,7 @@
                 </div>
               </div>
             </div>
-            <a href="${grant.website}" target="_blank" rel="noopener noreferrer" class="apply-btn" aria-label="Open application for ${grant.name}">Apply →</a>
+            ${grant.website ? `<a href="${grant.website}" target="_blank" rel="noopener noreferrer" class="apply-btn" aria-label="Open application for ${grant.name}">Apply →</a>` : ''}
           </div>
         </div>
       `;
@@ -890,7 +890,7 @@
           PRESET_REASONS = data.presetReasons;
         }
 
-        grants = data.grants.filter(g => g && g.name && g.type && g.website && g.deadline);
+        grants = data.grants.filter(g => g && g.name && g.type && g.deadline);
 
         const dateParts = [];
         if (data.lastUpdated) dateParts.push('Updated ' + data.lastUpdated);
