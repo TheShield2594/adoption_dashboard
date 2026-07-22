@@ -57,7 +57,7 @@ Run it manually any time (e.g. to test): `node scripts/fetch-grants.js --dry-run
 ### With Docker (recommended, e.g. via Portainer)
 
 ```bash
-docker compose up -d
+docker compose pull && docker compose up -d
 ```
 
 This pulls the prebuilt image `ghcr.io/theshield2594/adoption_dashboard:latest`
@@ -68,16 +68,24 @@ container recreation/updates. A named volume (rather than a host bind mount)
 is used so the container's non-root `node` user always has write access,
 regardless of host directory permissions.
 
+The explicit `docker compose pull` matters when updating: `:latest` is a
+moving tag, and `docker compose up` alone reuses whatever image is already
+on the host.
+
 To build the image locally instead (e.g. when testing changes):
 
 ```bash
 docker build -t ghcr.io/theshield2594/adoption_dashboard:latest .
-docker compose up -d
+docker compose up -d --pull never
 ```
+
+(`--pull never` keeps Compose from replacing your local build with the
+registry image.)
 
 In Portainer: create a stack by pasting `docker-compose.yml` into the web
 editor, or point a Portainer "Git repository" stack at this repo — either
-way the stack pulls the image from GHCR, so updating is just re-pulling.
+way the stack pulls the image from GHCR, so updating is just
+"Re-pull image and redeploy" on the stack.
 Put your existing Nginx Proxy Manager / Cloudflare setup in front of port
 `3000` like any other container.
 
