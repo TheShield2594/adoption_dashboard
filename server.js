@@ -17,7 +17,7 @@ if (removedAtBoot.length) {
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { index: 'adoption-grants-dashboard.html' }));
 
 app.get('/api/health', (req, res) => {
   try {
