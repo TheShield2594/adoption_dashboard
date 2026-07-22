@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Adoption Grants Dashboard</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#F6F0E6">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Grants">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400..600&display=swap" rel="stylesheet">
@@ -33,6 +41,7 @@
       color: var(--ink);
       min-height: 100vh;
       font-family: var(--sans);
+      overflow-x: hidden;
     }
 
     a { color: var(--accent); }
@@ -208,6 +217,7 @@
       padding: 0 0 2px;
       cursor: pointer;
       white-space: nowrap;
+      flex-shrink: 0;
       font-family: var(--mono);
       font-size: 0.72rem;
       letter-spacing: 0.03em;
@@ -409,8 +419,40 @@
     .empty-state .hint { font-family: var(--mono); font-size: 0.7rem; color: var(--faint); }
 
     @media (max-width: 640px) {
+      .shell { padding: 28px 20px 0; }
+      .list-shell { padding: 32px 20px 64px; }
+      .topbar { margin-bottom: 36px; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); row-gap: 24px; }
       .hero-title { font-size: 1.9rem; }
+
+      /* Scroll instead of wrap so the sticky filter bar stays one line and
+         doesn't push page content down as filters are added. */
+      .filter-bar-inner {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 16px 20px;
+        gap: 18px;
+      }
+      .filter-bar-inner::-webkit-scrollbar { display: none; }
+
+      /* Bigger tap targets for filter/action buttons. */
+      .filter-btn { padding: 10px 0 8px; }
+      .text-btn { padding: 12px 8px; margin: -12px -8px; }
+      .row-actions { gap: 14px; row-gap: 18px; }
+      .apply-btn { padding: 10px 22px; }
+
+      /* Ignore reason picker: stack full-width instead of squeezing
+         a select + input onto one cramped row. */
+      .ignore-wrap { flex-direction: column; align-items: stretch; width: 100%; gap: 10px; }
+      .ignore-wrap select, .ignore-wrap input { max-width: none; width: 100%; }
+    }
+
+    @media (max-width: 400px) {
+      .hero-title { font-size: 1.6rem; }
+      .shell { padding: 24px 16px 0; }
+      .list-shell { padding: 28px 16px 56px; }
     }
   </style>
 </head>
@@ -906,6 +948,13 @@
     }
 
     init();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .catch(err => console.error('Service worker registration failed:', err));
+      });
+    }
   </script>
 </body>
 </html>
