@@ -39,6 +39,7 @@ app.get('/api/grants', (req, res) => {
 
   res.json({
     lastUpdated: db.getMeta('lastUpdated', ''),
+    lastChecked: db.getMeta('lastChecked', ''),
     version: Number(db.getMeta('version', '2')),
     adoptionType: db.getMeta('adoptionType', ''),
     consultant: db.getMeta('consultant', ''),

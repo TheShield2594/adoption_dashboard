@@ -892,9 +892,10 @@
 
         grants = data.grants.filter(g => g && g.name && g.type && g.website && g.deadline);
 
-        if (data.lastUpdated) {
-          document.getElementById('last-updated').textContent = 'Updated ' + data.lastUpdated;
-        }
+        const dateParts = [];
+        if (data.lastUpdated) dateParts.push('Updated ' + data.lastUpdated);
+        if (data.lastChecked) dateParts.push('Checked ' + data.lastChecked);
+        document.getElementById('last-updated').textContent = dateParts.join(' · ');
 
         grants.forEach(g => {
           if (statusCache[g.name]) {
